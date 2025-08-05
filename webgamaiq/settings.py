@@ -19,7 +19,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 DEBUG = True
 
 # İzin verilen hostlar
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['webgamaiq-6c22c1463e92.herokuapp.com']
 
 # Veritabanı ayarları
 DATABASES = {
