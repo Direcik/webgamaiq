@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web-production-ccbc2.up.railway.app', '[::1]']
 
 DATABASES = {
     'default': {
