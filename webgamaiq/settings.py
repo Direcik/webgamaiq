@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import pymysql
 from dotenv import load_dotenv
+import dj_database_url
 
 pymysql.install_as_MySQLdb()
 
@@ -21,7 +22,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'webgamaiq-6c22c1463e92.herokuapp.com', 
+    'webgamaiq.herokuapp.com', 
     '[::1]',
 ]
 
@@ -29,13 +30,14 @@ ALLOWED_HOSTS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT", "3306"),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', '3307'),  # veya 3307 ise onu kullan
     }
 }
+
 
 # Yüklü uygulamalar
 INSTALLED_APPS = [
