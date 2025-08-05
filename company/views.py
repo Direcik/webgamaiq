@@ -6,6 +6,8 @@ from .models import Company
 
 def index(request):
     return render(request, "index.html")
+
+
 @login_required
 def companyDashboard(request):
     form = CompanyFilterForm(request.GET or None)

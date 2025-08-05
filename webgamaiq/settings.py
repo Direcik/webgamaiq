@@ -15,15 +15,10 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
 # Debug modu (True/False string olarak .env'den okunur)
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = True
 
 # İzin verilen hostlar
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'web-production-ccbc2.up.railway.app',  # Railway hostunu ekle
-    '[::1]',
-]
+ALLOWED_HOSTS = []
 
 # Veritabanı ayarları
 DATABASES = {
