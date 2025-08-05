@@ -15,10 +15,15 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
 # Debug modu (True/False string olarak .env'den okunur)
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # İzin verilen hostlar
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'webgamaiq-6c22c1463e92.herokuapp.com', 
+    '[::1]',
+]
 
 # Veritabanı ayarları
 DATABASES = {
