@@ -16,20 +16,23 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
 # Debug modu (True/False string olarak .env'den okunur)
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = True
 
 # İzin verilen hostlar
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 # Veritabanı ayarları
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT', '3307'),  # veya 3307 ise onu kullan
+        'NAME': 'WEBgamaIQ_othershow',  # Oluşturacağınız veritabanı adı
+        'USER': 'WEBgamaIQ_othershow',     # MySQL kullanıcı adınız (örn: root)
+        'PASSWORD': '03965aa81d8b853fb5ed64776c51433d7e6af59b', # MySQL parolanız
+        'HOST': '7rg3ai.h.filess.io',           # MySQL sunucunuzun adresi (genellikle localhost)
+        'PORT': '3307',                # MySQL portu (varsayılan: 3306)
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 

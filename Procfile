@@ -1,1 +1,1 @@
-web: gunicorn webgamaiq.wsgi
+web: gunicorn webgamaiq.wsgi --log-file -
