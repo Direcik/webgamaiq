@@ -1,0 +1,26 @@
+{% for product in products %}
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ product.name_tr }}</h5>
+        <p class="card-text text-muted mb-2">Ref No: <strong>{{ product.ref_no }}</strong></p>
+        <p class="card-text text-muted mb-2">Stok: <strong>{{ product.stock_quantity }}</strong></p>
+        <div class="mt-auto pt-2">
+          <button 
+              class="btn btn-sm w-100 toggle-cart-btn {% if product.id in cart_product_ids %}btn-danger{% else %}btn-primary{% endif %}" 
+              data-product-id="{{ product.id }}">
+              {% if product.id in cart_product_ids %}
+                Siparişten Çıkar
+              {% else %}
+                Siparişe Ekle
+              {% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% empty %}
+  <div class="col">
+    <div class="alert alert-warning w-100">Ürün bulunamadı.</div>
+  </div>
+{% endfor %}

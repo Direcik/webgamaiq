@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+{% block title %}Proforma Bilgilerini Doldur{% endblock %}
+
+{% block body %}
+<h2 class="mb-4">Proforma Bilgilerini Doldur</h2>
+
+
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card mb-4">
+    <div class="card-header">Firma ve Para Birimi</div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <input type="text" placeholder="Firma adını giriniz." class="form-control" name="company_name"
+                 id="company_name" value="{{ draft.company_name|default_if_none:'' }}" required>
+        </div>
+        <div class="col-md-2 mb-2">
+          <select class="form-select" name="currency" id="currency" required>
+            <option value="" disabled selected>Para birimi seçiniz</option>
+            <option value="TRY" {% if draft.currency == 'TRY' %}selected{% endif %}>TL</option>
+            <option value="USD" {% if draft.currency == 'USD' %}selected{% endif %}>USD</option>
+            <option value="EUR" {% if draft.currency == 'EUR' %}selected{% endif %}>EUR</option>
+          </select>
+        </div>
+        <div class="col-md-2 mb-2">
+          <input type="number" step="0.0001" min="0" class="form-control"
+                  name="exchange_rate" id="exchange_rate"
+                  placeholder="Kur (1 {{ draft.currency }} kaç ₺?)"
+                  value="{{ draft.exchange_rate|default_if_none:'' }}" required>
+        </div>
+        <div class="col-md-2 mb-2">
+            <select name="vat_rate" class="form-select" required>
+              <option value="" disabled selected>KDV seçiniz</option>
+              <option value="0" {% if draft.vat_rate == 0 %}selected{% endif %}>%0</option>
+              <option value="1" {% if draft.vat_rate == 1 %}selected{% endif %}>%1</option>
+              <option value="8" {% if draft.vat_rate == 8 %}selected{% endif %}>%8</option>
+              <option value="10" {% if draft.vat_rate == 10 %}selected{% endif %}>%10</option>
+              <option value="18" {% if draft.vat_rate == 18 %}selected{% endif %}>%18</option>
+              <option value="20" {% if draft.vat_rate == 20 %}selected{% endif %}>%20</option>
+            </select>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Ürün</th>
+          <th>Miktar</th>
+          <th>Ürün Fiyatı (<span id="currency-symbol">?</span>)</th>
+          <th>Toplam</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in draft.items.all %}
+        <tr data-item-id="{{ item.id }}">
+          <td>{{ item.product.name_tr }}</td>
+          <td>
+            <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}"
+                   class="form-control quantity-input" min="0" required>
+          </td>
+          <td>
+            <input type="number" name="unit_price_{{ item.id }}" value="{{ item.unit_price }}"
+                class="form-control price-input" step="0.0001" min="0" required>
+          </td>
+          <td class="item-total">-</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light">
+        <tr>
+          <th colspan="3" class="text-end">Toplam (KDV Hariç)</th>
+          <th id="grand-total">-</th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-end">Toplam + KDV</th>
+          <th id="grand-total-with-vat">-</th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-end">TL Karşılığı</th>
+          <th id="total-in-try">-</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <a href="{% url 'proforma:clear_draft' draft.id %}" class="btn btn-outline-danger w-25">🗑️ Taslağı Temizle</a>
+    <button type="submit" class="btn btn-outline-success w-25">✅ Devam Et</button>
+  </div>
+</form>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const currencySelect = document.getElementById("currency");
+    const currencySymbolSpan = document.getElementById("currency-symbol");
+    const exchangeRateInput = document.getElementById("exchange_rate");
+    const vatSelect = document.querySelector("select[name='vat_rate']");
+
+    const currencySymbols = {
+      "TRY": "₺",
+      "USD": "$",
+      "EUR": "€"
+    };
+
+    function updateCurrencySymbol() {
+      const selected = currencySelect.value;
+      currencySymbolSpan.textContent = currencySymbols[selected] || "?";
+    }
+
+    function updateExchangePlaceholder() {
+      const selectedCurrency = currencySelect.value;
+      if (selectedCurrency) {
+        exchangeRateInput.placeholder = `Kur (1 ${selectedCurrency} kaç ₺?)`;
+      } else {
+        exchangeRateInput.placeholder = "Kur (1 ? kaç ₺?)";
+      }
+    }
+
+    function updateAllTotals() {
+      let grandTotal = 0;
+
+      document.querySelectorAll("tr[data-item-id]").forEach(function (row) {
+        const quantityInput = row.querySelector(".quantity-input");
+        const priceInput = row.querySelector(".price-input");
+        const totalCell = row.querySelector(".item-total");
+
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        const total = quantity * price;
+
+        totalCell.textContent = total > 0 ? total.toFixed(4) : "-";
+        grandTotal += total;
+      });
+
+      const vatRate = parseFloat(vatSelect.value) || 0;
+      const vatAmount = grandTotal * (vatRate / 100);
+      const totalWithVat = grandTotal + vatAmount;
+
+      const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+      const totalInTry = totalWithVat * exchangeRate;
+
+      document.getElementById("grand-total").textContent = grandTotal > 0 ? grandTotal.toFixed(4) : "-";
+      document.getElementById("grand-total-with-vat").textContent = totalWithVat > 0 ? totalWithVat.toFixed(4) : "-";
+      document.getElementById("total-in-try").textContent = totalInTry > 0 ? totalInTry.toFixed(2) + " ₺" : "-";
+    }
+
+    // Event dinleyicileri
+    currencySelect.addEventListener("change", () => {
+      updateCurrencySymbol();
+      updateExchangePlaceholder();
+    });
+
+    vatSelect.addEventListener("change", updateAllTotals);
+    exchangeRateInput.addEventListener("input", updateAllTotals);
+
+    document.querySelectorAll("tr[data-item-id]").forEach(function (row) {
+      const quantityInput = row.querySelector(".quantity-input");
+      const priceInput = row.querySelector(".price-input");
+
+      quantityInput.addEventListener("input", updateAllTotals);
+      priceInput.addEventListener("input", updateAllTotals);
+    });
+
+    // İlk çalıştırma
+    updateCurrencySymbol();
+    updateExchangePlaceholder();
+    updateAllTotals();
+  });
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Kalite Raporları{% endblock %}
+
+{% block body %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">📄 Kalite Raporları</h5>
+  </div>
+  <div class="card-body">
+    <form method="get">
+      {% crispy form %}
+    </form>
+  </div>
+</div>
+
+{% if reports != None %}
+  <div class="card">
+    <div class="card-body">
+      {% if reports %}
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Ürün Adı</th>
+            <th>Lot No</th>
+            <th>Üretim Tarihi</th>
+            <th>Oluşturulma</th>
+            <th>PDF</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for report in reports %}
+          <tr>
+            <td>{{ report.product.name_tr }}</td>
+            <td>{{ report.lot_number }}</td>
+            <td>{{ report.production_date|date:"Y-m" }}</td>
+            <td>{{ report.created_at|date:"d.m.Y H:i" }}</td>
+            <td>
+              <a href="{% url 'quality:quality_report_pdf' report.pk %}" target="_blank" class="btn btn-sm btn-outline-primary">
+                📄 PDF
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="text-muted">Sonuç bulunamadı.</p>
+      {% endif %}
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info mt-3">
+    🔍 Lütfen Ürün Adı veya LOT NO ile arama yapınız.
+  </div>
+{% endif %}
+{% endblock %}

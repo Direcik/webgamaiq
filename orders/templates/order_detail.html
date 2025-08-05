@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sipariş Detayı{% endblock %}
+
+{% block body %}
+
+<div class="mt-4">
+    <a href="{% url 'orders:order_list' %}" class="btn btn-outline-primary">
+        « Sipariş Listesine Geri Dön
+    </a>
+</div>
+
+<div class="mt-4">
+
+<h2 class="mb-4">📦 Sipariş Detayı: {{ order.order_number }}</h2>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">📌 Sipariş Durumu</div>
+                <div class="card-body">
+                    {{ status_form|crispy }}
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">🏢 Firma Bilgisi</div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Adı:</strong> {{ order.customer_company.name }}</li>
+                        <li><strong>Vergi No:</strong> {{ order.customer_company.tax_number }} </li>
+                        <li><strong>Adres:</strong> {{ order.customer_company.address }}</li>
+                        <li><strong>E-Posta:</strong> {{ order.customer_company.email }} | <strong>Telefon:</strong> {{ order.customer_company.phone }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">📄 Sipariş Kalemleri</div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ürün</th>
+                        <th>Toplam</th>
+                        <th>Teslim Edilen</th>
+                        <th>Kalan</th>
+                        <th>Yeni Teslimat</th>
+                        <th>Lot No</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item_form in item_forms %}
+                    <tr>
+                        <td>{{ item_form.item.product.name_tr }}</td>
+                        <td>{{ item_form.item.quantity }}</td>
+                        <td>{{ item_form.item.delivered_quantity }}</td>
+                        <td>{{ item_form.kalan }}</td>
+                        <td>{{ item_form.form.new_delivery }}</td>
+                        <td>{{ item_form.form.lot_no }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <a href="{% url 'orders:order_preview_pdf' order.id %}" target="_blank" class="btn btn-outline-primary w-15">
+            📄 PDF Önizleme
+          </a>
+        <button type="submit" class="btn btn-outline-success">💾 Güncellemeleri Kaydet</button>
+    </div>
+</form>
+<div class="col-mb-6">
+    
+  </div>
+
+{% endblock %}

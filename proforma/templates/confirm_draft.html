@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block title %}Proforma Onayı{% endblock %}
+
+{% block body %}
+<h2 class="mb-4">🧾 Proforma Onayı</h2>
+<div class="border border-secondary-subtle bg-white p-4 rounded mb-4">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="text-muted small">Firma Adı</div>
+        <div class="fs-5 fw-semibold">{{ draft.company_name }}</div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="text-muted small">Para Birimi</div>
+        <div class="fs-5 fw-semibold">{{ draft.get_currency_display }}</div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="text-muted small">Kur</div>
+        <div class="fs-5 fw-semibold">{{ draft.exchange_rate }}</div>
+      </div>
+    </div>
+  </div>
+  
+
+<div class="table-responsive mb-4">
+  <table class="table table-bordered text-center align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Ürün</th>
+        <th>Miktar</th>
+        <th>Ürün Fiyatı ({{ draft.get_currency_display }})</th>
+        <th>Toplam</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in draft.items.all %}
+      <tr>
+        <td>{{ item.product.name_tr }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit_price|floatformat:4 }}</td>
+        <td>{{ item.total_price|floatformat:4 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="table-light">
+      <tr>
+        <th colspan="3" class="text-end">Toplam</th>
+        <th>
+          {{ total_amount|floatformat:4 }} {{ draft.get_currency_display }}
+        </th>
+      </tr>
+      <tr>
+        <th colspan="3" class="text-end">KDV Oranı</th>
+        <th>
+          %{{ draft.vat_rate }}
+        </th>
+      </tr>
+      <tr>
+        <th colspan="3" class="text-end">Toplam + KDV</th>
+        <th>
+          {{ total_with_vat|floatformat:4 }} {{ draft.get_currency_display }}
+        </th>
+      </tr>
+      <tr>
+        <th colspan="3" class="text-end">TL Karşılığı</th>
+        <th>
+          {{ total_tl|floatformat:4 }} ₺
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="d-flex justify-content-between mt-4">
+    <a href="{% url 'proforma:product_selection' %}" class="btn btn-outline-secondary">
+        ⬅️ Geri Dön
+    </a>
+    <button type="submit" class="btn btn-outline-success">
+      ✅ Proforma Fatura Oluştur
+    </button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Hareket Filtrele</h5>
+        </div>
+        <div class="card-body">
+          <form method="get">
+            {% crispy filter_form %}
+          </form>
+        </div>
+      </div>
+    {# Tarih Aralığı Filtreleme Formu #}
+
+
+    <!-- Uyarılar -->
+    {% if not filtered %}
+        <div class="alert alert-info mt-3">
+            Lütfen filtreleme yapmak için tarih aralığı veya hareket tipi seçiniz.
+        </div>
+    {% elif stock_movements.count == 0 %}
+        <div class="alert alert-warning mt-3">
+            Seçilen kriterlere uygun stok hareketi bulunamadı.
+        </div>
+    {% endif %}
+
+
+    {% if stock_movements %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover ">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tarih</th> {# Bu başlık değişmedi #}
+                        <th>Hareket Tipi</th>
+                        <th>Ürün Ref No</th>
+                        <th>Ürün Adı</th>
+                        <th class="text-end">Miktar</th>
+                        <th>Lot No</th>
+                        <th>Kullanıcı</th>
+                        <th>Firma</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in stock_movements %}
+                        <tr>
+                            {# Burada movement.timestamp yerine movement.movement_date kullanıldı #}
+                            <td>{{ movement.movement_date|date:"d.m.Y" }}</td>
+                            <td>
+                                {% if movement.movement_type == 'IN' %}
+                                    <span class="badge bg-success">Giriş</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Çıkış</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ movement.product.ref_no }}</td>
+                            <td>{{ movement.product.name_tr }}</td>
+                            <td class="text-end">{{ movement.quantity }}</td>
+                            <td>{{ movement.lot_no|default:"-" }}</td>
+                            <td>{{ movement.user.username }}</td>
+                            <td>{{ movement.company.name }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock body %}

@@ -1,0 +1,108 @@
+{% load static %}
+
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+      <img src="{% static 'images/isolated-monochrome-white.svg' %}" alt="GAMAIQ Logo" width="150" height="30" class="me-2">
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      {% if request.user.is_authenticated %}
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Ürün Yönetimi
+          </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="{% url 'addproduct' %}">Ürün Ekle</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'productdashboard' %}">Ürün Listesi</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'addcategory' %}">Kategori</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'addunit' %}">Birim</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'addwarehouse' %}">Depo</a></li>
+            </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Firma Yönetimi
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'addcompany' %}">Firma Kaydı</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'companydashboard' %}">Firma Listesi</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Sipariş Yönetimi
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'orders:ordercreate' %}">Sipariş Oluştur</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'orders:order_list' %}">Sipariş Takip</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Stok Yönetimi
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'add_stock_in' %}">Stok Girişi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'add_stock_out' %}">Stok Çıkışı</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'stock_movement_list' %}">Stok Hareketleri</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'product_stock_summary' %}">Stok Adetleri</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Kalite Yönetimi
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'quality:create_report' %}">Rapor Oluştur</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'quality:report_list' %}">Rapor Listesi</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Uygulamalar
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'proforma:product_selection' %}">Proforma Oluşturucu</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'documents:belge_formu' %}">İhale Dosyası Oluşturucu</a></li>
+          </ul>
+        </li>
+    </ul>
+    {% endif %}
+      <!-- Sağ taraf (ms-auto = sola boşluk bırak, sağa yasla) -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center gap-2">
+
+        {% if request.user.is_authenticated %}
+          <li class="nav-item">
+            <a class="btn btn-outline-info disabled" tabindex="-1" aria-disabled="true" href="#">👋 {{ request.user.username }}</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-danger" href="{% url 'user:logout' %}">Çıkış Yap</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="btn btn-outline-success" href="{% url 'user:login' %}">Giriş Yap</a>
+          </li>
+        {% endif %}
+      
+      </ul>
+      
+    </div>
+  </div>
+</nav>

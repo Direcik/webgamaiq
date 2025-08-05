@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Proforma Ürün Seçimi{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    <h2 class="mb-4">Proforma Oluştur - Ürün Seç</h2>
+
+    <!-- Kategori filtresi -->
+    <div class="card mb-4">
+        <div class="card-header">Kategori Filtrelemesi</div>
+        <div class="card-body">
+            <form method="get" id="category-filter-form">
+                {{ filter_form|crispy }}
+            </form>
+
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">Ürünler</div>
+        <div class="card-body">
+            <!-- Ürün listesi -->
+            <div id="product-list">
+                {% include "partials/product_list.html" %}
+            </div>
+        </div>
+    </div>
+    <!-- Devam Et Butonu -->
+    <div class="mt-6 text-end">
+        <a href="{% url 'proforma:invoice_list' %}" class="btn btn-outline-primary">
+            📄 Hazır Proformaları Görüntüle
+          </a>
+        <a href="{% url 'proforma:fill_draft' draft.id %}" class="btn btn-outline-success" id="continue-btn">✅ Devam Et</a>
+    </div>
+      
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast-message" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Lütfen en az bir ürün seçiniz.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const categorySelect = document.querySelector("#id_category");
+        const productList = document.querySelector("#product-list");
+    
+        function bindToggleButtons() {
+            document.querySelectorAll(".toggle-product-btn").forEach(function (btn) {
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const productId = btn.dataset.productId;
+                    fetch(`/proforma/draft/toggle/${productId}/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "X-Requested-With": "XMLHttpRequest",
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.added) {
+                            btn.classList.remove("btn-outline-primary");
+                            btn.classList.add("btn-danger");
+                            btn.textContent = "Proformadan Çıkar";
+                        } else if (data.removed) {
+                            btn.classList.remove("btn-danger");
+                            btn.classList.add("btn-outline-primary");
+                            btn.textContent = "Proformaya Ekle";
+                        }
+                    });
+                });
+            });
+        }
+    
+        // Sayfa yüklendiğinde butonları bağla
+        bindToggleButtons();
+    
+        // Kategori değiştiğinde ürün listesini yükle ve butonları yeniden bağla
+        if (categorySelect) {
+            categorySelect.addEventListener("change", function () {
+                const categoryId = this.value;
+                fetch(`/proforma/draft/load-products/?category=${categoryId}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        productList.innerHTML = html;
+                        bindToggleButtons();
+                    });
+            });
+        }
+    });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const continueBtn = document.querySelector("#continue-btn");
+    
+            if (continueBtn) {
+                continueBtn.addEventListener("click", function (e) {
+                    const selectedButtons = document.querySelectorAll(".toggle-product-btn.btn-danger");
+    
+                    if (selectedButtons.length === 0) {
+                        e.preventDefault();  // Form gönderimini engelle
+                        const toastEl = document.getElementById("toast-message");
+                        const toast = new bootstrap.Toast(toastEl);
+                        toast.show();
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

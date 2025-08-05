@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %} {# Crispy Forms etiketlerini yüklüyoruz #}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+  <div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Kategoriye Göre Stok Filtrele</h5>
+    </div>
+    <div class="card-body">
+      <form method="get">
+        {% crispy filter_form %}
+      </form>
+    </div>
+  </div>
+
+  {% if filtered %}
+      {% if products_summary %}
+          <div class="table-responsive d-block mx-auto">
+              <table class="table table-striped table-hover table-bordered">
+                  <thead class="table-dark">
+                      <tr>
+                          <th class="text-center">Ref No</th>
+                          <th class="text-center">Barkod</th>
+                          <th class="text-center">Ürün Adı (TR)</th>
+                          <th class="text-center">Kategori</th>
+                          <th class="text-center">Depo</th>
+                          <th class="text-end">Mevcut Stok</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for product in products_summary %}
+                          <tr>
+                              <td class="text-center">{{ product.ref_no }}</td>
+                              <td class="text-center">{{ product.barcode|default:"-" }}</td>
+                              <td class="text-center">{{ product.name_tr }}</td>
+                              <td class="text-center">{{ product.category.name|default:"Yok" }}</td>
+                              <td class="text-center">{{ product.warehouse.name|default:"Yok" }}</td>
+                              <td class="text-end">
+                                  <span class="badge fs-6 {% if product.stock_quantity <= 50 %}bg-danger{% elif product.stock_quantity <= 100 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                      <small>{{ product.stock_quantity }}</small>
+                                  </span>
+                              </td>
+                          </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      {% else %}
+          <div class="alert alert-warning" role="alert">
+              Seçilen kategoriye ait ürün bulunmamaktadır.
+          </div>
+      {% endif %}
+  {% else %}
+      <div class="alert alert-info" role="alert">
+          Lütfen kategori seçerek filtreleme yapınız.
+      </div>
+  {% endif %}
+{% endblock body %}

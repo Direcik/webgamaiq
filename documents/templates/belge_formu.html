@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}İhale Dosyası Oluştur{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <h2>İhale Dosyası Oluştur</h2>
+  <form method="post" target="_blank">
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <div class="mt-4 row text-center">
+      <div class="col-12 col-md-4 mb-2">
+        <button type="submit" name="belge_tipi" value="yetki" class="btn btn-outline-primary w-100">
+          Yetki Belgesi
+        </button>
+      </div>
+      <div class="col-12 col-md-4 mb-2">
+        <button type="submit" name="belge_tipi" value="urunlu_yetki" class="btn btn-outline-secondary w-100">
+          Ürünlü Yetki Belgesi
+        </button>
+      </div>
+      <div class="col-12 col-md-4 mb-2">
+        <button type="submit" name="belge_tipi" value="kapsam_disi" class="btn btn-outline-danger w-100">
+          Kapsam Dışı Belgesi
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

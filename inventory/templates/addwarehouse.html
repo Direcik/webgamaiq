@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block body %}
+{% load crispy_forms_tags %}
+
+
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Depo Ekle</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" >
+            {% csrf_token %}
+            {{form|crispy}}
+            <button type="submit" class="btn btn-success">Depo Ekle</button>
+        </form>
+    </div>
+  </div>
+
+
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Mevcut Depolar</h5>
+    </div>
+    <div class="card-body table-responsive">
+<table class="table text-center align-middle table-sm">
+    <thead>
+      <tr>            
+        <th scope="col"><h5>Depo Adı</h5></th>
+        <th scope="col"><h5>Güncelle</h5></th>
+        <th scope="col"><h5>Sil</h5></th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for warehouse in warehouses %}
+        <tr>
+            <td  class="align-middle">{{warehouse.name}}</td>
+            <td><a href="/inventory/updatewarehouse/{{warehouse.id}}" class="btn btn-primary btn-sm">Güncelle</a></td>
+            <td><a href="/inventory/deletewarehouse/{{warehouse.id}}" class="btn btn-danger btn-sm">Sil</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+</div>
+
+
+{% endblock body %}

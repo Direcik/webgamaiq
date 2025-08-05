@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block body %}
+    <div class="jumbotron text-center">
+        <p>        
+            {% if request.user.is_authenticated %}
+                <img src="{% static 'images/default.svg' %}" class="img-fluid" alt="..." style=" max-width: 720px;">
+            {% else %}
+            <span class="badge pill text-bg-dark fs-3">Lütfen Giriş Yapınız.</span>
+
+            {% endif %}
+        </p>
+    </div>
+    <p>
+        
+        
+    </p>
+
+
+
+   
+
+{% endblock body %}

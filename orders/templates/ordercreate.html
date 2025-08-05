@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<h2 class="mb-4">{{ title }}</h2>
+
+<!-- Firma Seçimi -->
+<div class="card mb-4">
+    <div class="card-header">Firma Seçimi</div>
+    <div class="card-body">
+        <form id="firma-form">
+            {% csrf_token %}
+            {{ order_form.customer_company|as_crispy_field }}
+        </form>
+    </div>
+</div>
+
+<!-- Kategori Seçimi -->
+<div class="card mb-4">
+    <div class="card-header">Kategori Filtrelesi</div>
+    <div class="card-body">
+        <form id="category-filter-form">
+            {{ filter_form.category|as_crispy_field }}
+        </form>
+    </div>
+</div>
+
+<!-- Ürün Listesi -->
+<div class="card-body">
+    <div id="product-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name_tr }}</h5>
+                        <p class="card-text text-muted mb-2">Ref No: <strong>{{ product.ref_no }}</strong></p>
+                        <p class="card-text text-muted mb-2">Stok: <strong>{{ product.stock_quantity }}</strong></p>
+                        <div class="mt-auto pt-2">
+                            <button 
+                                class="btn btn-sm w-100 toggle-cart-btn {% if product.id in cart_product_ids %}btn-danger{% else %}btn-primary{% endif %}" 
+                                data-product-id="{{ product.id }}">
+                                {% if product.id in cart_product_ids %}
+                                    Siparişten Çıkar
+                                {% else %}
+                                    Siparişe Ekle
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if order %}
+<div class="row mt-4">
+    <div class="col-md-4">
+      <a href="{% url 'orders:clear_order' order.id %}" class="btn btn-outline-danger w-100">
+        🗑️ Siparişi Sil
+      </a>
+    </div>
+    <div class="col-md-8">
+        <a href="#" id="go-to-cart-btn" class="btn btn-outline-success w-100" data-href="{% url 'orders:cart_detail' order.id %}">
+            🛒 Siparişe Git
+          </a>
+    </div>
+  </div>
+{% endif %}
+
+<!-- Toast Mesajları -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="validationToast" class="toast text-white border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+      <div class="d-flex">
+        <div class="toast-body" id="validationToastBody">
+          <!-- JS ile mesaj eklenecek -->
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let cartProductCount = {{ cart_product_ids|length|default:"0" }};
+
+    const firmaSelect = document.getElementById('id_customer_company');
+    const toastEl = document.getElementById('validationToast');
+    const toastBody = document.getElementById('validationToastBody');
+
+    // Firma değiştiğinde AJAX kaydet ve yeşil toast göster
+    firmaSelect.addEventListener('change', function () {
+        const formData = new FormData(document.getElementById('firma-form'));
+        fetch("{% url 'orders:update_firma_ajax' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(() => {
+            showToast("Firma seçimi yapıldı.", 'success');
+        })
+        .catch(() => {
+            showToast("Firma kaydedilirken hata oluştu.", 'danger');
+        });
+    });
+
+    // Kategori değişince ürünleri AJAX ile yükle
+    document.getElementById('id_category').addEventListener('change', function () {
+        const categoryId = this.value;
+        fetch("{% url 'orders:load_products_by_category' %}?category=" + categoryId)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('product-list').innerHTML = html;
+                attachToggleEvents();
+            });
+    });
+
+    function attachToggleEvents() {
+        const buttons = document.querySelectorAll('.toggle-cart-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.dataset.productId;
+                const btn = this;
+
+                fetch(`/orders/cart/toggle/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.added) {
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-danger');
+                        btn.textContent = 'Siparişten Çıkar';
+                        updateCartCount(true);
+                        showToast("Ürün siparişe eklendi.", 'success');
+                    } else {
+                        btn.classList.remove('btn-danger');
+                        btn.classList.add('btn-primary');
+                        btn.textContent = 'Siparişe Ekle';
+                        updateCartCount(false);
+                        showToast("Ürün siparişten çıkarıldı.", 'success');
+                    }
+                })
+                .catch(() => {
+                    showToast("İşlem sırasında hata oluştu.", 'danger');
+                });
+            });
+        });
+    }
+
+    function updateCartCount(added) {
+        if (added) {
+            cartProductCount++;
+        } else {
+            cartProductCount = Math.max(cartProductCount - 1, 0);
+        }
+        console.log("Güncel ürün sayısı:", cartProductCount);
+    }
+
+    function showToast(message, type = 'danger') {
+        toastBody.textContent = message;
+        toastEl.classList.remove('bg-success', 'bg-danger');
+        if (type === 'success') {
+            toastEl.classList.add('bg-success');
+        } else {
+            toastEl.classList.add('bg-danger');
+        }
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+
+    attachToggleEvents();
+
+    const goToCartBtn = document.getElementById('go-to-cart-btn');
+    goToCartBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const selectedFirm = firmaSelect ? firmaSelect.value.trim() : '';
+
+        if (!selectedFirm) {
+            showToast("Lütfen bir firma seçiniz.", 'danger');
+            return;
+        }
+
+        if (cartProductCount === 0) {
+            showToast("Siparişe ürün eklemeden devam edemezsiniz.", 'danger');
+            return;
+        }
+
+        window.location.href = this.dataset.href;
+    });
+});
+</script>
+{% endblock %}

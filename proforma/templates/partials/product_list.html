@@ -1,0 +1,31 @@
+{% if products %}
+<div class="row">
+  {% for product in products %}
+      <div class="col-md-4 mb-3">
+          <div class="card h-100">
+              <div class="card-body d-flex flex-column justify-content-between">
+                  <div>
+                      <h6 class="card-title"><strong>{{ product.name_tr }}</strong></h6>
+                      <p class="card-subtitle text-muted">{{ product.ref_no }}</p>
+                  </div>
+                  <div class="mt-3">
+                      <button
+                          class="btn toggle-product-btn w-100 {% if product.id in selected_product_ids %}btn-danger{% else %}btn-outline-primary{% endif %}"
+                          data-product-id="{{ product.id }}">
+                          {% if product.id in selected_product_ids %}Proformadan Çıkar{% else %}Proformaya Ekle{% endif %}
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  {% empty %}
+      <div class="col-12">
+          <p>Bu kategoride ürün bulunamadı.</p>
+      </div>
+  {% endfor %}
+</div>
+{% else %}
+    <div class="alert alert-warning">
+        Lütfen kategori seçin. Ürün listesi burada görüntülenecek.
+    </div>
+{% endif %}

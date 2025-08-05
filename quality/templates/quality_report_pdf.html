@@ -1,0 +1,276 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalite Raporu</title>
+  <style>
+    @page { margin: 0; }
+    body {
+      font-family: sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #333;
+      position: relative;
+    }
+    header, footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 100px;
+    }
+    header { top: 5px; }
+    footer { bottom: 0; }
+    main {
+      padding: 1cm;
+    }
+    .logo-top { width: 100%; margin-bottom: 20px; }
+    .logo-footer { width: 100%; }
+    .title {
+      text-align: center;
+      font-size: 18pt;
+      color: #5a5388;
+      margin: 0; /* Tüm varsayılan boşlukları sıfırla */
+      padding: 0;
+    }
+    .title-h2{
+      text-align: center;
+      font-size: 12pt;
+      font-style: italic;
+      color: #5a5388;
+      margin: 0; /* Tüm varsayılan boşlukları sıfırla */
+      padding: 0;
+    }
+    .content {
+      margin-top: 40px;
+    }
+    .title + .title {
+      margin-top: 0px;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .table-info {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+    }
+    table, th, td {
+      border: 1px solid #333;
+    }
+    th, td {
+      padding: 6px;
+      text-align: left;
+    }
+    .table-analysis {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+    }
+    table, th, td {
+      border: 1px solid #333;
+    }
+    .th-analysis, .td-analysis {
+      padding: 6px;
+      text-align: center;
+      font-weight: normal;
+    }
+
+    .no-border {
+      border: none !important;
+    }
+    .subtitle {
+      background: #f2f2f2;
+      font-weight: bold;
+    }
+    .watermarked {
+      position: relative;
+    }
+    .watermarked::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url("{% static 'images/GAMA-LOGO.png' %}");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: 600px;
+      opacity: 0.1;
+      z-index: 0;
+    }
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="{% static 'images/header.png' %}" class="logo-top">
+</header>
+
+<footer>
+  <img src="{% static 'images/footer.png' %}" class="logo-footer">
+</footer>
+
+<main class="watermarked">
+<div class="content">
+  <h1 class="title">ANALİZ SERTİFİKASI</h1>
+  <h2 class="title-h2" style="margin-bottom: 10px; ">(CERTIFICATE OF ANALYSIS)</h2>
+
+  <table class="table-info">
+    <tr>
+      <td><strong>Ürün Adı</strong><br><em>(Product Name)</em></td>
+      <td colspan="7">
+        <strong>{{ report.product.name_tr|capfirst }}</strong><br><em>({{ report.product.name_en }})</em>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>LOT NO</strong><br><em>(LOT NO)</em></td>
+      <td>{{ report.lot_number }}</td>
+      <td><strong>REF NO</strong><br><em>(REF NO)</em></td>
+      <td>{{ report.product.ref_no }}</td>
+      <td><strong>Ü.T.</strong><br><em>(P.T.)</em></td>
+      <td>{{ report.production_date|date:"m/Y" }}</td>
+      <td><strong>S.K.T</strong><br><em>(E.T.)</em></td>
+      <td>{{ report.expiry_date|date:"m/Y" }}</td>
+    </tr>
+    <tr>
+      <td colspan="1"><strong>Kağıt Türü</strong><br><em>(Paper Type)</em></td>
+      <td colspan="2"><strong>{{ report.paper }}</strong><br><em>({{ report.paper_en }})</em></td>
+      <td colspan="1"><strong>Film Türü</strong><br><em>(Film Type)</em></td>
+      <td colspan="2"><strong>{{ report.film }}</strong><br><em>({{ report.film_en }})</em></td>
+      <td colspan="1"><strong>Rapor No</strong><br><em>(Report No)</em></td>
+      <td colspan="2"><small>{{ report.report_number }}</small></td>
+    </tr>
+  </table>
+
+  <div class="section">
+    <table class="table-analysis">
+      <thead>
+        <tr>
+          <th class="th-analysis"><strong>Yapılan Analiz</strong><br><em>(Analysis Made)</em></th>
+          <th class="th-analysis"><strong>Birim</strong><br><em>(Unit)</em></th>
+          <th class="th-analysis"><strong>Değerlendirme Limiti</strong><br><em>(Evaluation Limit)</em></th>
+          <th class="th-analysis"><strong>Değerlendirme Kaynağı</strong><br><em>(Evaluation Resource)</em></th>
+          <th class="th-analysis"><strong>Sonuç</strong><br><em>(Result)</em></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Kağıt Ağırlık</strong><br><em>(Paper Weight)</em></td>
+          <td class="td-analysis">g/m²</td>
+          <td class="td-analysis">60±5%</td>
+          <td class="td-analysis">ISO 536</td>
+          <td class="td-analysis">{{ report.paper_weight|floatformat:0 }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Film Ağırlık</strong><br><em>(Film Weight)</em></td>
+          <td class="td-analysis">g/m²</td>
+          <td class="td-analysis">54±8%</td>
+          <td class="td-analysis">-</td>
+          <td class="td-analysis">{{ report.film_weight|floatformat:0 }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Kağıt Kalınlık</strong><br><em>(Paper Thickness)</em></td>
+          <td class="td-analysis">μm</td>
+          <td class="td-analysis">86±10%</td>
+          <td class="td-analysis">ISO 534</td>
+          <td class="td-analysis">{{ report.paper_thickness|floatformat:0 }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Film Kalınlık</strong><br><em>(Film Thickness)</em></td>
+          <td class="td-analysis">μm</td>
+          <td class="td-analysis">52±10%</td>
+          <td class="td-analysis">-</td>
+          <td class="td-analysis">{{ report.film_thickness|floatformat:0 }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Boyut Kontrol</strong><br><em>(Size Check)</em></td>
+          <td class="td-analysis">cm<br>mm</td>
+          <td class="td-analysis">İstenilen Ölçüler<br><em>(Desired Dimensions)</em></td>
+          <td class="td-analysis">-</td>
+          <td class="td-analysis">{{ report.size_check|title }}<br><em>({{ report.size_check_en|title }})</em></td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Kaynak Direnci Sol</strong><br><em>(Source Resistance Left)</em></td>
+          <td class="td-analysis">N/15mm</td>
+          <td class="td-analysis">Min. 3,00</td>
+          <td class="td-analysis">EN 868-5</td>
+          <td class="td-analysis">{{ report.seal_strength_left }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Kaynak Direnci Sağ</strong><br><em>(Source Resistance Right)</em></td>
+          <td class="td-analysis">N/15mm</td>
+          <td class="td-analysis">Min. 3,00</td>
+          <td class="td-analysis">EN 868-5</td>
+          <td class="td-analysis">{{ report.seal_strength_right }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Kaynak Direnci Üst</strong><br><em>(Source Resistance Upper)</em></td>
+          <td class="td-analysis">N/15mm</td>
+          <td class="td-analysis">Min. 3,00</td>
+          <td class="td-analysis">EN 868-5</td>
+          <td class="td-analysis">{{ report.seal_strength_top }}</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Sızıntı Testi</strong><br><em>(Leakage Test)</em></td>
+          <td class="td-analysis"></td>
+          <td class="td-analysis">Sızdırmazlık Olmamalı<br><em>(Should Be No Sealing)</em></td>
+          <td class="td-analysis">ASTM F 1929</td>
+          <td class="td-analysis">{{ report.leakage_test|title }}<br><em>({{ report.leakage_test_en|title }})</em></td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>Sıyrılma Yönü</strong><br><em>(Stripping Direction)</em></td>
+          <td class="td-analysis"></td>
+          <td class="td-analysis">Parçacığı Kırmamalı<br><em>(Particle Shouldn't Break)</em></td>
+          <td class="td-analysis">EN 868-5 Ek-E</td>
+          <td class="td-analysis">{{ report.peeling_direction|title }}<br><em>({{ report.peeling_direction_en|title }})</em></td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>İndikatör {{ report.indicator_1|title }}</strong><br><em>(Indicator {{ report.indicator_1_en }})</em></td>
+          <td class="td-analysis"></td>
+          <td class="td-analysis"></td>
+          <td class="td-analysis">ISO 11140-1</td>
+          <td class="td-analysis">{{ report.indicator_1_color_change|title }}<br><em>({{ report.indicator_1_color_change_en|title }})</em></td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td class="td-analysis"><strong>İndikatör {{ report.indicator_2|upper }}</strong><br><em>(Indicator {{ report.indicator_2_en }})</em></td>
+          <td class="td-analysis"></td>
+          <td class="td-analysis"></td>
+          <td class="td-analysis">ISO 11140-1</td>
+          <td class="td-analysis">{{ report.indicator_2_color_change|title }}<br><em>({{ report.indicator_2_color_change_en|title }})</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <p style="font-size: 8px;"><strong>UYARI: Kalibre edilmiş ve onaylanmış bir kapatma makinası ile Düz Sterilizasyon için 170-190°C Tyvek için 130-140°C sıcaklık değerleri arasında kapatılması tavsiye edilir. ‘Kaynak Direnci Üst’ ürün adında yalnızca ‘ZARF’ kelimesini içeren ürünler için geçerlidir.</strong> - <em>WARNING: It is recommended to seal between 170-190°C for Flat Sterilization and 130-140°C for Tyvek using a calibrated and approved sealing machine. Applies only to products containing the word “POUCH in the product name “Source Resistance Upper.”</em></p>
+    <p style="font-size: 8px;"><strong>Yukarıda bilgileri bulunan ürünün, tüm üretim aşamaları ilgili standartlara uygun olarak gerçekleştirilmektedir. Aynı lota ait birden fazla ürünün sevk edilmesi durumunda bu sertifika tüm parti için geçerlidir ve bu sertifika garanti belgesi niteliğinde değildir.</strong> - <em>All production stages of the product with the above information are carried out in accordance with International standards. In case, more than one product belonging to the same lot is shipped, this certificate is valid for the whole lot. This certificate is not a warranty document.</em></p>
+  </div>
+</main>
+
+</body>
+</html>

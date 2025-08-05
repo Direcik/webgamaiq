@@ -1,0 +1,1 @@
+web: gunicorn webgamaiq.wsgi --log-file -

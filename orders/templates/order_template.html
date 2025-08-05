@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sipariş PDF</title>
+    <style>
+        @page {
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Nexa Extra Light', sans-serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333;
+            position: relative;
+        }
+
+        header, footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 80px;
+            text-align: center;
+        }
+
+        header {
+            top: 0;
+        }
+
+        footer {
+            bottom: 0;
+        }
+
+        main {
+            padding: 0.5cm 0.5cm;      /* içeriğe girinti vermek için sol/sağ padding */
+          }
+        .content {
+            margin-top: 100px;
+            margin-bottom: 100px;
+        }
+
+        h1 {
+            font-family: 'Nexa Heavy', sans-serif;
+            font-size: 16pt;
+            color: #0f4761;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            margin-bottom: 30px;
+        }
+
+        .info p {
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 10pt;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .logo-top {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .logo-footer {
+            width: 100%;
+        }
+
+        .logo-absolute {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="{% static 'images/header.png' %}" class="logo-top">
+    </header>
+
+    <footer>
+        <img src="{% static 'images/footer.png' %}" class="logo-footer">
+    </footer>
+
+    <main>
+    <div class="content">
+        <h1 style="text-align: center">SİPARİŞ BİLGİLERİ</h1>
+
+        <div class="info">
+            <p><strong>Firma:</strong> {{ order.customer_company.name }}</p>
+            <p><strong>Sipariş No:</strong> {{ order.order_number }}</p>
+            <p><strong>Sipariş Tarihi:</strong> {{ order.order_date|date:"d.m.Y" }}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>REF NO</th>
+                    <th>Ürün Adı</th>
+                    <th>Miktar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                  <td>{{ item.product.ref_no }}</td>
+                  <td>{{ item.product.name_tr }}</td>
+                  <td>{{ item.quantity }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">Ürün bulunamadı.</td></tr>
+                {% endfor %}
+              </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

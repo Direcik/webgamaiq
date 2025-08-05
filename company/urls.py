@@ -1,0 +1,10 @@
+from django.urls import path
+from company import views
+
+urlpatterns = [
+    path('companydashboard/', views.companyDashboard, name="companydashboard"),
+    path('addcompany/', views.addCompany, name="addcompany"),
+    path('updatecompany/<int:id>', views.updateCompany, name="updatecompany"),
+    path('deletecompany/<int:id>', views.deleteCompany, name="deletecompany"),
+
+]

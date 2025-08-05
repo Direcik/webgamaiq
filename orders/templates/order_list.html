@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Siparişlerim{% endblock %}
+
+{% block body %}
+<h2 class="mb-4">📋 Siparişlerim</h2>
+<div class="card mb-4">
+  <div class="card-header">
+      <h5 class="mb-0">Sipariş Filtrele</h5>
+  </div>
+  <div class="card-body">
+      <form method="get">
+          {% crispy filter_form %}
+      </form>
+  </div>
+</div>
+
+   <!-- Uyarılar -->
+{% if not filtered %}
+   <div class="alert alert-info mt-3">
+       Lütfen filtreleme yapmak için tarih aralığı veya sipariş durumu seçiniz.
+   </div>
+   {% elif orders.count == 0 %}
+   <div class="alert alert-warning mt-3">
+       Seçilen kriterlere uygun sipariş bulunamadı.
+   </div>
+{% endif %}
+
+
+
+{% if orders %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Sipariş No</th>
+          <th>Tarih</th>
+          <th>Firma</th>
+          <th>Durum</th>
+          <th>İşlem</th>  <!-- Yeni sütun -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td>{{ order.order_number }}</td>
+            <td>{{ order.order_date|date:"d.m.Y H:i" }}</td>
+            <td>{{ order.customer_company }}</td>
+            <td>
+              {% if order.status == 'confirmed' %}
+                <span class="badge bg-primary">Onaylandı</span>
+              {% elif order.status == 'shipped' %}
+                <span class="badge bg-secondary">Kargoya Verildi</span>
+              {% elif order.status == 'partial' %}
+                <span class="badge bg-warning">Kısmi Teslimat</span>
+              {% elif order.status == 'delivered' %}
+                <span class="badge bg-success">Teslim Edildi</span>
+              {% elif order.status == 'invoiced' %}
+                <span class="badge bg-info">Faturalandı</span>
+              {% elif order.status == 'cancelled' %}
+                <span class="badge bg-danger">İptal Edildi</span>
+              
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                Detay
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>      
+    </table>
+  </div>
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %} {# Ana layout dosyanızı extends ediyoruz #}
+{% load crispy_forms_tags %} {# Crispy Forms etiketlerini yüklüyoruz #}
+
+{% block title %}{{ title }}{% endblock %} {# Başlığı dinamik olarak ayarla #}
+
+{% block body %} {# Sizin belirttiğiniz block adı #}
+    <h2 class="mb-4">{{ title }}</h2> {# Başlık #}
+    <form method="post">
+        {% csrf_token %} {# Güvenlik için CSRF token #}
+        {% crispy form %} {# Crispy Forms ile formumuzu render ediyoruz #}
+        {# Submit butonu forms.py içinde Layout'ta tanımlandığı için burada ayrıca bir submit butonu eklemeye gerek yok. #}
+    </form>
+
+    {% comment %}
+    AJAX ile dinamik stok kontrolü için gerekli JavaScript buraya eklenecek.
+    Sadece stok çıkış formunda aktif olmalı veya hareket tipine göre davranmalı.
+    {% endcomment %}
+    {% if request.resolver_match.url_name == 'add_stock_out' %}
+        {% block extra_js %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const productSelect = document.getElementById('id_product');
+                const quantityInput = document.getElementById('id_quantity');
+
+                // Sayfa yüklendiğinde ve bir ürün önceden seçiliyse stok miktarını göster
+                if (productSelect && productSelect.value) {
+                    updateMaxQuantity(productSelect.value);
+                }
+
+                productSelect.addEventListener('change', function() {
+                    const selectedProductId = this.value;
+                    if (selectedProductId) {
+                        updateMaxQuantity(selectedProductId);
+                    } else {
+                        quantityInput.removeAttribute('max');
+                        quantityInput.placeholder = "Çıkış Adedi";
+                    }
+                });
+
+                function updateMaxQuantity(productId) {
+                    fetch(`/inventory/get-product-stock/${productId}/`) // AJAX URL'niz
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.stock_quantity !== undefined) {
+                                quantityInput.setAttribute('max', data.stock_quantity);
+                                quantityInput.placeholder = `Çıkış Adedi (Max: ${data.stock_quantity})`;
+                            } else {
+                                quantityInput.removeAttribute('max');
+                                quantityName.placeholder = "Çıkış Adedi";
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Stok bilgisi çekilirken hata oluştu:', error);
+                            quantityInput.removeAttribute('max');
+                            quantityInput.placeholder = "Çıkış Adedi";
+                        });
+                }
+            });
+        </script>
+        {% endblock %}
+    {% endif %}
+{% endblock body %}

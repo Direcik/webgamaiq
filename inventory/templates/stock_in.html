@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Yeni Stok Girişi{% endblock %}
+
+{% block body %}
+    <h2 class="mb-4">Yeni Stok Girişi</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+    {% endblock body %}
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const barcodeInput = document.getElementById('barcode');
+            const refNoInput = document.getElementById('product_ref_no');
+            const productNameInput = document.getElementById('product_name_tr');
+            const stockQuantityInput = document.getElementById('product_stock_quantity');
+            const quantityInput = document.getElementById('id_quantity');
+            const barcodeFeedback = document.getElementById('barcode_feedback');
+        
+            function clearFields() {
+                productNameInput.value = '';
+                refNoInput.value = '';
+                refNoInput.classList.remove('is-valid', 'is-invalid');
+                stockQuantityInput.value = '';
+                barcodeInput.value = '';
+                barcodeInput.classList.remove('is-valid', 'is-invalid');
+                barcodeFeedback.textContent = '';
+                quantityInput.removeAttribute('max');
+                quantityInput.placeholder = 'Giriş Adedi';
+            }
+            refNoInput.addEventListener('input', debounce(function () {
+                const value = this.value.trim();
+                if (value) {
+                    fetchProduct(value, 'ref_no');
+                } else {
+                    clearFields(); // Ref No temizlenince diğer alanlar da temizlensin
+                }
+            }, 3000));
+            function populateFields(data) {
+                refNoInput.value = data.ref_no;
+                barcodeInput.value = data.barcode;
+                productNameInput.value = data.name_tr;
+                stockQuantityInput.value = data.stock_quantity;
+                barcodeInput.classList.add('is-valid');
+                barcodeInput.classList.remove('is-invalid');
+                refNoInput.classList.add('is-valid');
+                refNoInput.classList.remove('is-invalid');
+                barcodeFeedback.textContent = '';
+                quantityInput.placeholder = 'Giriş Adedi';
+            }
+        
+            function fetchProduct(query, type) {
+                const url = type === 'barcode'
+                    ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
+                    : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
+        
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.found) {
+                            populateFields(data);
+                        } else {
+                            clearFields();
+                            barcodeInput.classList.add('is-invalid');
+                            barcodeFeedback.textContent = data.message || 'Ürün bulunamadı.';
+                        }
+                    })
+                    .catch(() => {
+                        clearFields();
+                        barcodeInput.classList.add('is-invalid');
+                        barcodeFeedback.textContent = 'Sunucu hatası oluştu.';
+                    });
+            }
+        
+            // Ref No girildiğinde
+            refNoInput.addEventListener('input', debounce(function () {
+                const value = this.value.trim();
+                if (value) {
+                    fetchProduct(value, 'ref_no');
+                } else {
+                    clearFields();  // Boşaldığında diğer alanları temizle
+                }
+            }, 3000));
+        
+            // Barkod girildiğinde
+            barcodeInput.addEventListener('input', debounce(function () {
+                const value = this.value.trim();
+                if (value) {
+                    fetchProduct(value, 'barcode');
+                } else {
+                    clearFields();
+                }
+            }, 5000));
+        
+            // Sayfa yüklendiğinde barkod varsa otomatik getir
+            if (barcodeInput.value) {
+                fetchProduct(barcodeInput.value.trim(), 'barcode');
+            }
+        
+            function debounce(func, delay) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+        });
+        </script>
+        
+    {% endblock %}

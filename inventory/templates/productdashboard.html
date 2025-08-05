@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block body %}
+{% load crispy_forms_tags %}
+
+<!-- Filtre Formu -->
+<div class="card mb-4">
+  <div class="card-header">
+      <h5 class="mb-0">Ürün Filtrele</h5>
+  </div>
+  <div class="card-body">
+    <form method="get">
+      {% csrf_token %}
+      {% crispy form %}
+    </form>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">
+      <h5 class="mb-0">Ürün Listesi</h5>
+  </div>
+  <div class="card-body table-responsive">
+
+<!-- Ürün Tablosu -->
+<table class="table text-center align-middle table-sm">
+  <thead>
+    <tr>
+      <th><h5>REF NO</h5></th>
+      <th><h5>Barkod</h5></th>          
+      <th><h5>Ürün Adı</h5></th>
+      <th><h5>Kategori</h5></th>
+      <th><h5>Güncelle</h5></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in products %}
+      <tr>
+        <td>{{ product.ref_no }}</td>
+        <td>{{ product.barcode }}</td>
+        <td>{{ product.name_tr }}</td>
+        <td>{{ product.category.name }}</td>
+        <td>
+          <a href="/inventory/updateproduct/{{ product.id }}" class="btn btn-primary btn-sm">Güncelle</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="6">Filtreye uyan ürün bulunamadı.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+
+
+{% endblock body %}
