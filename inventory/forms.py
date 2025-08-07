@@ -106,7 +106,7 @@ class BaseStockMovementForm(forms.ModelForm):
     # Bunlar sadece görüntüleme amaçlıdır, form verisi olarak gönderilmez.
     # Ancak yine de form objesinde erişilebilir olması için ekliyoruz.
     product_name_tr = forms.CharField(max_length=255,required=False,label="Ürün Adı",widget=forms.TextInput(attrs={'readonly': 'readonly', 'id': 'product_name_tr'}))
-    product_stock_quantity = forms.IntegerField(required=False,label="Mevcut Stok",widget=forms.NumberInput(attrs={'readonly': 'readonly', 'id': 'product_stock_quantity'})
+    product_stock_quantity = forms.FloatField(required=False,label="Mevcut Stok",widget=forms.NumberInput(attrs={'readonly': 'readonly', 'id': 'product_stock_quantity'})
 )
 
     # Firma bilgisi (readonly)
@@ -122,7 +122,7 @@ class BaseStockMovementForm(forms.ModelForm):
         # product alanı kaldırıldı, barkod üzerinden bulunacak
         fields = ['company', 'quantity', 'lot_no', 'description'] # movement_type view'da ayarlanacak
         widgets = {
-            'quantity': forms.NumberInput(attrs={'placeholder': 'Adet'}),
+            'quantity': forms.NumberInput(attrs={'placeholder': 'Miktar'}),
             'lot_no': forms.TextInput(attrs={'placeholder': 'Lot Numarası (isteğe bağlı)'}),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Açıklama (isteğe bağlı)'}),
         }
