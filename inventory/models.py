@@ -48,7 +48,7 @@ class Product(models.Model):
     name_tr = models.CharField(max_length = 255, verbose_name='Ürün Adı TR', blank=True)
     name_en = models.CharField(max_length = 255, verbose_name='Ürün Adı EN', blank=True)
     udino = models.CharField(max_length = 20 ,verbose_name="UDI Numarası", blank=True)
-    stock_quantity = models.IntegerField(default=0, verbose_name="Mevcut Stok Adedi")
+    stock_quantity = models.FloatField(default=0, verbose_name="Mevcut Stok Adedi")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Kategori Adı')
     unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Birim')
     warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Depo')
