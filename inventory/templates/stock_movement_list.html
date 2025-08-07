@@ -39,6 +39,7 @@
                         <th>Ürün Ref No</th>
                         <th>Ürün Adı</th>
                         <th class="text-end">Miktar</th>
+                        <th>Birim</th>
                         <th>Lot No</th>
                         <th>Kullanıcı</th>
                         <th>Firma</th>
@@ -59,6 +60,7 @@
                             <td>{{ movement.product.ref_no }}</td>
                             <td>{{ movement.product.name_tr }}</td>
                             <td class="text-end">{{ movement.quantity }}</td>
+                            <td>{{ movement.product.unit.name }}</td>
                             <td>{{ movement.lot_no|default:"-" }}</td>
                             <td>{{ movement.user.username }}</td>
                             <td>{{ movement.company.name }}</td>

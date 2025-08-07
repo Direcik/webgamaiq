@@ -6,7 +6,9 @@
             {% if request.user.is_authenticated %}
                 <img src="{% static 'images/default.svg' %}" class="img-fluid" alt="..." style=" max-width: 720px;">
             {% else %}
-            <span class="badge pill text-bg-dark fs-3">Lütfen Giriş Yapınız.</span>
+            <a href="{% url 'user:login' %}" class="badge pill text-bg-dark fs-3 text-decoration-none">
+                Lütfen Giriş Yapınız.
+              </a>
 
             {% endif %}
         </p>

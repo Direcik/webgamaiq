@@ -25,7 +25,7 @@
                           <th class="text-center">Barkod</th>
                           <th class="text-center">Ürün Adı (TR)</th>
                           <th class="text-center">Kategori</th>
-                          <th class="text-center">Depo</th>
+                          <th class="text-center">Birim</th>
                           <th class="text-end">Mevcut Stok</th>
                       </tr>
                   </thead>
@@ -36,7 +36,7 @@
                               <td class="text-center">{{ product.barcode|default:"-" }}</td>
                               <td class="text-center">{{ product.name_tr }}</td>
                               <td class="text-center">{{ product.category.name|default:"Yok" }}</td>
-                              <td class="text-center">{{ product.warehouse.name|default:"Yok" }}</td>
+                              <td class="text-center">{{ product.unit.name|default:"Yok" }}</td>
                               <td class="text-end">
                                   <span class="badge fs-6 {% if product.stock_quantity <= 50 %}bg-danger{% elif product.stock_quantity <= 100 %}bg-warning text-dark{% else %}bg-success{% endif %}">
                                       <small>{{ product.stock_quantity }}</small>
