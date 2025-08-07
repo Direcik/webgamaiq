@@ -209,10 +209,7 @@ def stock_movement_list(request):
         'title': 'Stok Hareketleri Listesi',
         'filtered': filtered,  # Eğer filtre uygulanmışsa True gönder
     }
-    if stock_movements.movement_type == "IN":
-        return render(request, 'stock_in.html', context)
-    if stock_movements.movement_type == "OUT":
-        return render(request, 'stock_out.html', context)
+    return render(request, 'stock_movement_list.html', context)
 
 # --- Stok Giriş View'i ---
 @login_required
@@ -228,7 +225,7 @@ def add_stock_in(request):
             stock_movement.product = form.cleaned_data['product']
             stock_movement.save()
             messages.success(request, 'Stok girişi başarıyla kaydedildi!')
-            return redirect('stock_movement_list')
+            return redirect('add_stock_in')
         else:
             messages.error(request, 'Stok girişi kaydedilirken bir hata oluştu. Lütfen formu kontrol edin.')
             # Hata durumunda formun input alanlarını doldurmak için mevcut POST verileriyle formu tekrar oluştur
@@ -260,7 +257,7 @@ def add_stock_out(request):
             stock_movement.product = form.cleaned_data['product']
             stock_movement.save()
             messages.success(request, 'Stok çıkışı başarıyla kaydedildi!')
-            return redirect('stock_movement_list')
+            return redirect('add_stock_out')
         else:
             messages.error(request, 'Stok çıkışı kaydedilirken bir hata oluştu. Lütfen formu kontrol edin.')
             # Hata durumunda formun input alanlarını doldurmak için mevcut POST verileriyle formu tekrar oluştur
