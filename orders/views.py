@@ -11,7 +11,7 @@ from .models import Order, OrderItem, Product
 
 from inventory.models import Product, StockMovement
 from inventory.forms import CategoryFilterForm
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from weasyprint import HTML
 
 
@@ -164,7 +164,6 @@ def order_cancel(request, order_id):
 
 @login_required
 def order_list(request):
-    orders = Order.objects.none()
     form = OrderFilterForm(request.GET or None)
     filtered = False
 
@@ -173,7 +172,7 @@ def order_list(request):
         start_date = form.cleaned_data.get('start_date')
         end_date = form.cleaned_data.get('end_date')
         status = form.cleaned_data.get('status')
-        # En az bir filtre alanı doluysa filtreleme yap
+
         if order_number or start_date or end_date or status:
             orders = Order.objects.all()
             if order_number:
@@ -185,16 +184,23 @@ def order_list(request):
                 orders = orders.filter(order_date__lte=end_of_day)
             if status:
                 orders = orders.filter(status=status)
-        
-        orders = orders.order_by('-order_date')
-        filtered = True
-    
+
+            orders = orders.order_by('-order_date')
+            filtered = True
+        else:
+            # Filtre formu geçerli ama alanlar boş, o yüzden son 10 günü göster
+            today = datetime.today()
+            ten_days_ago = today - timedelta(days=10)
+            orders = Order.objects.filter(order_date__gte=ten_days_ago).order_by('-order_date')
+    else:
+        # Form geçersizse hiçbir şey gösterme
+        orders = Order.objects.none()
 
     return render(request, 'order_list.html', {
         'orders': orders,
         'filter_form': form,
         'title': 'Siparişlerim',
-        'filtered': filtered,  # Eğer filtre uygulanmışsa True gönder
+        'filtered': filtered,
     })
 
 

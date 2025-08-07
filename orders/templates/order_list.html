@@ -74,4 +74,9 @@
   </div>
 
 {% endif %}
+{% if filtered and orders.count == 0 %}
+   <div class="alert alert-warning mt-3">
+       Seçilen kriterlere uygun sipariş bulunamadı.
+   </div>
+{% endif %}
 {% endblock %}
