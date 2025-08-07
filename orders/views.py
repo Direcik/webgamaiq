@@ -165,16 +165,18 @@ def order_cancel(request, order_id):
 @login_required
 def order_list(request):
     form = OrderFilterForm(request.GET or None)
+    orders = Order.objects.none()
     filtered = False
 
-    if form.is_valid():
-        order_number = form.cleaned_data.get('order_number')
-        start_date = form.cleaned_data.get('start_date')
-        end_date = form.cleaned_data.get('end_date')
-        status = form.cleaned_data.get('status')
+    if request.GET:  # Filtreleme yapılmışsa (URL'de GET parametresi varsa)
+        if form.is_valid():
+            order_number = form.cleaned_data.get('order_number')
+            start_date = form.cleaned_data.get('start_date')
+            end_date = form.cleaned_data.get('end_date')
+            status = form.cleaned_data.get('status')
 
-        if order_number or start_date or end_date or status:
             orders = Order.objects.all()
+
             if order_number:
                 orders = orders.filter(order_number=order_number)
             if start_date:
@@ -187,14 +189,11 @@ def order_list(request):
 
             orders = orders.order_by('-order_date')
             filtered = True
-        else:
-            # Filtre formu geçerli ama alanlar boş, o yüzden son 10 günü göster
-            today = datetime.today()
-            ten_days_ago = today - timedelta(days=10)
-            orders = Order.objects.filter(order_date__gte=ten_days_ago).order_by('-order_date')
     else:
-        # Form geçersizse hiçbir şey gösterme
-        orders = Order.objects.none()
+        # İlk açılış: filtre yok → son 10 gün
+        today = datetime.now()
+        ten_days_ago = today - timedelta(days=10)
+        orders = Order.objects.filter(order_date__gte=ten_days_ago).order_by('-order_date')
 
     return render(request, 'order_list.html', {
         'orders': orders,
