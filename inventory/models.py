@@ -74,7 +74,7 @@ class StockMovement(models.Model):
         ('OUT', 'Çıkış'),
     ]
     movement_type = models.CharField(max_length=3,choices=movement_type_choices,verbose_name="Hareket Tipi")
-    quantity = models.IntegerField(verbose_name="Adet")
+    quantity = models.FloatField(verbose_name="Miktar")
     lot_no = models.CharField(max_length=100, blank=True, null=True, verbose_name="Lot Numarası")
     company = models.ForeignKey('company.Company', on_delete=models.CASCADE, null=True, blank=True)
 

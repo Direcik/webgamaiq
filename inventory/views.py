@@ -209,7 +209,10 @@ def stock_movement_list(request):
         'title': 'Stok Hareketleri Listesi',
         'filtered': filtered,  # Eğer filtre uygulanmışsa True gönder
     }
-    return render(request, 'stock_movement_list.html', context)
+    if movement_type == "IN":
+        return render(request, 'stock_in.html', context)
+    if movement_type == "OUT":
+        return render(request, 'stock_out.html', context)
 
 # --- Stok Giriş View'i ---
 @login_required
