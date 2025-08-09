@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const quantityInput = document.getElementById('id_quantity');
     const barcodeFeedback = document.getElementById('barcode_feedback');
 
+    // Mevcut debounce, fetchProduct vs. kodun aynen burada olacak
     function clearFields() {
         productNameInput.value = '';
         refNoInput.value = '';
@@ -109,7 +110,8 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchProduct(barcodeInput.value.trim(), 'barcode');
     }
 
-    // Kamera ve barkod tarama işlemi
+    // --- html5-qrcode ile kamera ve barkod tarama kodu ---
+
     const startCameraBtn = document.getElementById('start-camera');
     const cameraContainer = document.getElementById('camera-container');
     const closeCameraBtn = document.getElementById('close-camera');
@@ -126,23 +128,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
+                // Arka kamerayı bulmaya çalış (label içinde 'back' varsa)
                 const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
                 const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
                 html5QrCode.start(
                     cameraId,
                     {
-                        fps: 15,
-                        qrbox: { width: 320, height: 150 },
-                        aspectRatio: 1.5,
+                        fps: 10,
+                        qrbox: { width: 300, height: 200 },
                         formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
                     (decodedText, decodedResult) => {
+                        // Barkod okundu
                         barcodeInput.value = decodedText;
                         barcodeInput.classList.remove('is-invalid');
                         barcodeInput.classList.add('is-valid');
                         barcodeFeedback.textContent = '';
 
+                        // İstersen otomatik fetch yapabilirsin:
                         fetchProduct(decodedText, 'barcode');
 
                         html5QrCode.stop().then(() => {
@@ -152,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     },
                     (errorMessage) => {
-                        // Hata mesajları konsola yazılır, kullanıcıya gösterilmez
+                        // Okuma hataları burada çok yazdırılmasın, konsola logla
                         // console.warn(`Decode error: ${errorMessage}`);
                     }
                 ).catch(err => {
