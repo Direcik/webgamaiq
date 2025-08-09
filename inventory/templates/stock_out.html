@@ -156,7 +156,12 @@
                         {
                             fps: 10,
                             qrbox: { width: qrboxSize, height: qrboxSize },
-                            formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
+                            formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ],
+                            videoConstraints: {
+                                width: { ideal: 640 },
+                                height: { ideal: 480 },
+                                facingMode: "environment"
+                            }
                         },
                         (decodedText, decodedResult) => {
                             barcodeInput.value = decodedText;
