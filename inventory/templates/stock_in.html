@@ -132,8 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         aspectRatio: 1.5,
                         formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
-                    onSuccessCallback,
-                    onErrorCallback
                     (decodedText, decodedResult) => {
                         // Barkod okundu
                         barcodeInput.value = decodedText;
