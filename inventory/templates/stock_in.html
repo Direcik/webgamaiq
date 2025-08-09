@@ -13,6 +13,7 @@
 
 {% block extra_js %}
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const barcodeInput = document.getElementById('barcode');
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const quantityInput = document.getElementById('id_quantity');
     const barcodeFeedback = document.getElementById('barcode_feedback');
 
+    // Mevcut debounce, fetchProduct vs. kodun aynen burada olacak
     function clearFields() {
         productNameInput.value = '';
         refNoInput.value = '';
@@ -43,10 +45,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function populateFields(data) {
-        refNoInput.value = data.ref_no || '';
-        barcodeInput.value = data.barcode || '';
-        productNameInput.value = data.name_tr || '';
-        stockQuantityInput.value = data.stock_quantity ?? '';
+        refNoInput.value = data.ref_no;
+        barcodeInput.value = data.barcode;
+        productNameInput.value = data.name_tr;
+        stockQuantityInput.value = data.stock_quantity;
         barcodeInput.classList.add('is-valid');
         barcodeInput.classList.remove('is-invalid');
         refNoInput.classList.add('is-valid');
@@ -79,18 +81,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     refNoInput.addEventListener('input', debounce(function () {
-        const val = this.value.trim();
-        if (val) {
-            fetchProduct(val, 'ref_no');
+        const value = this.value.trim();
+        if (value) {
+            fetchProduct(value, 'ref_no');
         } else {
             clearFields();
         }
     }, 3000));
 
     barcodeInput.addEventListener('input', debounce(function () {
-        const val = this.value.trim();
-        if (val) {
-            fetchProduct(val, 'barcode');
+        const value = this.value.trim();
+        if (value) {
+            fetchProduct(value, 'barcode');
         } else {
             clearFields();
         }
@@ -100,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchProduct(barcodeInput.value.trim(), 'barcode');
     }
 
-    // Kamera ve html5-qrcode ayarları
+    // --- html5-qrcode ile kamera ve barkod tarama kodu ---
+
     const startCameraBtn = document.getElementById('start-camera');
     const cameraContainer = document.getElementById('camera-container');
     const closeCameraBtn = document.getElementById('close-camera');
@@ -108,29 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let html5QrCode = null;
 
-    function stopCamera() {
-        if (html5QrCode) {
-            html5QrCode.stop().then(() => {
-                cameraContainer.style.display = 'none';
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                }
-            }).catch(err => console.error('Kamera durdurma hatası:', err));
-        } else {
-            cameraContainer.style.display = 'none';
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-        }
-    }
-
     startCameraBtn.addEventListener('click', function () {
         cameraContainer.style.display = 'block';
-
-        // Sadece kamera açılırken fullscreen iste
-        if (cameraContainer.requestFullscreen) {
-            cameraContainer.requestFullscreen().catch(err => console.error('Fullscreen açılamadı:', err));
-        }
 
         if (!html5QrCode) {
             html5QrCode = new Html5Qrcode(readerDivId);
@@ -138,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
+                // Arka kamerayı bulmaya çalış (label içinde 'back' varsa)
                 const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
                 const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
@@ -145,16 +128,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     cameraId,
                     {
                         fps: 10,
-                        qrbox: false, // Fullscreen için tarama kutusu yok
-                        formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
+                        qrbox: { width: 300, height: 200 },
+                        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
-                    (decodedText) => {
+                    (decodedText, decodedResult) => {
+                        // Barkod okundu
                         barcodeInput.value = decodedText;
                         barcodeInput.classList.remove('is-invalid');
                         barcodeInput.classList.add('is-valid');
                         barcodeFeedback.textContent = '';
+
+                        // İstersen otomatik fetch yapabilirsin:
                         fetchProduct(decodedText, 'barcode');
-                        stopCamera();
+
+                        html5QrCode.stop().then(() => {
+                            cameraContainer.style.display = 'none';
+                        }).catch(err => {
+                            console.error('Kamera durdurma hatası:', err);
+                        });
+                    },
+                    (errorMessage) => {
+                        // Okuma hataları burada çok yazdırılmasın, konsola logla
+                        // console.warn(`Decode error: ${errorMessage}`);
                     }
                 ).catch(err => {
                     alert("Kamera başlatılamadı: " + err);
@@ -168,9 +163,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    closeCameraBtn.addEventListener('click', stopCamera);
+    closeCameraBtn.addEventListener('click', function () {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                cameraContainer.style.display = 'none';
+            }).catch(err => {
+                console.error('Kamera durdurma hatası:', err);
+            });
+        } else {
+            cameraContainer.style.display = 'none';
+        }
+    });
 });
 </script>
-
 
 {% endblock %}
