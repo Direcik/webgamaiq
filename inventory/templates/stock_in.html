@@ -4,49 +4,19 @@
 {% block title %}Yeni Stok Girişi{% endblock %}
 
 {% block body %}
-<h2 class="mb-4">Yeni Stok Girişi</h2>
+    <h2 class="mb-4">Yeni Stok Girişi</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
 
-<form method="post" novalidate>
-    {% csrf_token %}
-    {% crispy form %}
-    
-    <!-- Kamera açma butonu formun içinde -->
-    <button type="button" id="start-camera" class="btn btn-outline-primary mt-3 w-100" title="Kamera ile Tara">
-        📷 Kamerayı Aç
-    </button>
-</form>
-
-<!-- Fullscreen kamera container -->
-<div id="camera-container" style="
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background-color: black;
-    z-index: 1050;
-    overflow: hidden;
-">
-    <div id="reader" style="
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    "></div>
-
-    <button id="close-camera" type="button" style="
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        background: rgba(255,0,0,0.85);
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        z-index: 1100;
-    " title="Kamerayı Kapat">✕</button>
-</div>
-
+    <!-- Kamera için HTML: -->
+    <div id="camera-container" style="display:none; margin-top:1rem; max-width: 320px; position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: #000;">
+        <div id="reader" style="width: 320px; height: 240px;"></div>
+        <button id="close-camera" type="button" 
+            style="position: absolute; top: 8px; right: 8px; background: rgba(255, 0, 0, 0.85); border: none; color: white; font-weight: bold; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3);" 
+            title="Kamerayı Kapat">✕</button>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
@@ -61,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const quantityInput = document.getElementById('id_quantity');
     const barcodeFeedback = document.getElementById('barcode_feedback');
 
+    // Mevcut debounce, fetchProduct vs. kodun aynen burada olacak
     function clearFields() {
         productNameInput.value = '';
         refNoInput.value = '';
@@ -96,8 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fetchProduct(query, type) {
         const url = type === 'barcode'
-            ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
-            : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
+            ? {% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}
+            : {% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)};
 
         fetch(url)
             .then(response => response.json())
@@ -139,7 +110,8 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchProduct(barcodeInput.value.trim(), 'barcode');
     }
 
-    // Kamera açma & kapama işlemleri
+    // --- html5-qrcode ile kamera ve barkod tarama kodu ---
+
     const startCameraBtn = document.getElementById('start-camera');
     const cameraContainer = document.getElementById('camera-container');
     const closeCameraBtn = document.getElementById('close-camera');
@@ -156,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
+                // Arka kamerayı bulmaya çalış (label içinde 'back' varsa)
                 const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
                 const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
@@ -163,15 +136,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     cameraId,
                     {
                         fps: 10,
-                        qrbox: false, // fullscreen tarama (çerçevesiz)
-                        formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE]
+                        qrbox: { width: 300, height: 200 },
+                        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
                     (decodedText, decodedResult) => {
+                        // Barkod okundu
                         barcodeInput.value = decodedText;
                         barcodeInput.classList.remove('is-invalid');
                         barcodeInput.classList.add('is-valid');
                         barcodeFeedback.textContent = '';
 
+                        // İstersen otomatik fetch yapabilirsin:
                         fetchProduct(decodedText, 'barcode');
 
                         html5QrCode.stop().then(() => {
@@ -181,11 +156,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     },
                     (errorMessage) => {
-                        // İstersen buraya hata mesajları ekleyebilirsin, ama genelde boş bırakılır
+                        // Okuma hataları burada çok yazdırılmasın, konsola logla
+                        // console.warn(Decode error: ${errorMessage});
                     }
                 ).catch(err => {
                     alert("Kamera başlatılamadı: " + err);
                 });
+
             } else {
                 alert('Cihazda kamera bulunamadı.');
             }
@@ -199,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
             html5QrCode.stop().then(() => {
                 cameraContainer.style.display = 'none';
             }).catch(err => {
-                console.error('Kamera kapatma hatası:', err);
+                console.error('Kamera durdurma hatası:', err);
             });
         } else {
             cameraContainer.style.display = 'none';
@@ -207,4 +184,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 {% endblock %}
