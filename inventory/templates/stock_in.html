@@ -109,5 +109,58 @@
             }
         });
         </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const startCameraBtn = document.getElementById('start-camera');
+    const closeCameraBtn = document.getElementById('close-camera');
+    const videoElem = document.getElementById('video');
+    const cameraContainer = document.getElementById('camera-container');
+    const barcodeInput = document.getElementById('barcode');
+
+    let codeReader;
+    let selectedDeviceId;
+
+    startCameraBtn.addEventListener('click', async () => {
+        cameraContainer.style.display = 'block';
+        startCameraBtn.disabled = true;
+
+        codeReader = new ZXing.BrowserMultiFormatReader();
+
+        try {
+            const videoInputDevices = await codeReader.listVideoInputDevices();
+            if(videoInputDevices.length === 0){
+                alert('Kamera bulunamadı!');
+                return;
+            }
+            selectedDeviceId = videoInputDevices[0].deviceId;
+            await codeReader.decodeFromVideoDevice(selectedDeviceId, videoElem, (result, err) => {
+                if (result) {
+                    barcodeInput.value = result.text;
+                    // Okuma yapıldıktan sonra kamera durdurulur ve gizlenir
+                    codeReader.reset();
+                    cameraContainer.style.display = 'none';
+                    startCameraBtn.disabled = false;
+                }
+                if (err && !(err instanceof ZXing.NotFoundException)) {
+                    console.error(err);
+                }
+            });
+        } catch (error) {
+            alert('Kamera başlatılırken hata oluştu: ' + error);
+            startCameraBtn.disabled = false;
+            cameraContainer.style.display = 'none';
+        }
+    });
+
+    closeCameraBtn.addEventListener('click', () => {
+        if (codeReader) {
+            codeReader.reset();
+        }
+        cameraContainer.style.display = 'none';
+        startCameraBtn.disabled = false;
+    });
+});
+</script>
         
     {% endblock %}
