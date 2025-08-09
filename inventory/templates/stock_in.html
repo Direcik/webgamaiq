@@ -8,9 +8,11 @@
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
-        <div id="camera-container" style="display:none; max-width:320px; max-height:220px; border:1px solid #ccc; position:relative; overflow:hidden; background:black;">
+        <div id="camera-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; z-index:10000;">
             <div id="reader" style="width:100%; height:100%;"></div>
-            <button id="close-camera" type="button" style="position:absolute; top:5px; right:5px; z-index:10;" class="btn btn-danger btn-sm">Kapat</button>
+            <button id="close-camera" type="button" 
+                    style="position:absolute; top:10px; right:10px; z-index:10001; background:rgba(255,0,0,0.8); border:none; color:white; font-size:24px; border-radius:50%; width:40px; height:40px; cursor:pointer;"
+                    title="Kamerayı Kapat">×</button>
           </div>
     </form>
 
@@ -112,82 +114,85 @@ document.addEventListener('DOMContentLoaded', function () {
     const startCameraBtn = document.getElementById('start-camera');
     const cameraContainer = document.getElementById('camera-container');
     const closeCameraBtn = document.getElementById('close-camera');
-    const readerDivId = 'reader';
-
     let html5QrCode = null;
-
-    startCameraBtn.addEventListener('click', function () {
-        cameraContainer.style.display = 'block';
-
-        if (!html5QrCode) {
-            html5QrCode = new Html5Qrcode(readerDivId);
-        }
-
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                // Arka kamerayı bulmaya çalış (label içinde 'back' varsa)
-                const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
-                const cameraId = backCamera ? backCamera.id : cameras[0].id;
-
-                html5QrCode.start(
-                    cameraId,
-                    {
-                        fps: 10,
-                        qrbox: { width: 300, height: 200 },
-                        aspectRatio: 300 / 200,
-                        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
-                    },
-                    (decodedText, decodedResult) => {
-                        // Kod okundu
-                    },
-                    (errorMessage) => {
-                        // Okuma hatası
-                    }
-                );
-                    (decodedText, decodedResult) => {
-                        // Barkod okundu
-                        barcodeInput.value = decodedText;
-                        barcodeInput.classList.remove('is-invalid');
-                        barcodeInput.classList.add('is-valid');
-                        barcodeFeedback.textContent = '';
-
-                        // İstersen otomatik fetch yapabilirsin:
-                        fetchProduct(decodedText, 'barcode');
-
-                        html5QrCode.stop().then(() => {
-                            cameraContainer.style.display = 'none';
-                        }).catch(err => {
-                            console.error('Kamera durdurma hatası:', err);
-                        });
-                    },
-                    (errorMessage) => {
-                        // Okuma hataları burada çok yazdırılmasın, konsola logla
-                        // console.warn(`Decode error: ${errorMessage}`);
-                    }
-                ).catch(err => {
-                    alert("Kamera başlatılamadı: " + err);
-                });
-
-            } else {
-                alert('Cihazda kamera bulunamadı.');
-            }
-        }).catch(err => {
-            alert("Kamera bilgisi alınamadı: " + err);
-        });
-    });
-
-    closeCameraBtn.addEventListener('click', function () {
-        if (html5QrCode) {
-            html5QrCode.stop().then(() => {
+    
+    function openFullscreen(elem) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) { /* Safari */
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE11 */
+        elem.msRequestFullscreen();
+      }
+    }
+    
+    function closeFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) { /* Safari */
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { /* IE11 */
+        document.msExitFullscreen();
+      }
+    }
+    
+    startCameraBtn.addEventListener('click', () => {
+      cameraContainer.style.display = 'block';
+    
+      openFullscreen(cameraContainer);  // Tam ekran yap
+    
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
+    
+      Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+          const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
+          const cameraId = backCamera ? backCamera.id : cameras[0].id;
+    
+          html5QrCode.start(
+            cameraId,
+            {
+              fps: 10,
+              qrbox: false,
+              formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
+            },
+            (decodedText) => {
+              // Barkod okundu
+              console.log("Decoded:", decodedText);
+              // ... input'a yaz, formu güncelle, vs.
+              
+              html5QrCode.stop().then(() => {
+                closeFullscreen();
                 cameraContainer.style.display = 'none';
-            }).catch(err => {
-                console.error('Kamera durdurma hatası:', err);
-            });
+              });
+            },
+            (errorMessage) => {
+              // Hata mesajları (genelde boş bırakılır)
+            }
+          ).catch(err => {
+            alert("Kamera başlatılamadı: " + err);
+          });
+    
         } else {
-            cameraContainer.style.display = 'none';
+          alert('Cihazda kamera bulunamadı.');
         }
+      }).catch(err => {
+        alert("Kamera bilgisi alınamadı: " + err);
+      });
     });
-});
+    
+    closeCameraBtn.addEventListener('click', () => {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          closeFullscreen();
+          cameraContainer.style.display = 'none';
+        });
+      } else {
+        closeFullscreen();
+        cameraContainer.style.display = 'none';
+      }
+    });
 </script>
 
 
