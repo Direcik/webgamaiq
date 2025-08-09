@@ -109,70 +109,64 @@
             }
         });
         </script>
-
         <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-        <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const startBtn = document.getElementById('start-camera');
-    const closeBtn = document.getElementById('close-camera');
-    const cameraContainer = document.getElementById('camera-container');
-    const videoElem = document.getElementById('video');
-    const barcodeInput = document.getElementById('barcode');
 
-    let codeReader = null;
-    let stream = null;
-
-    function stopStream() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
-        if (codeReader) {
-            codeReader.reset();
-            codeReader = null;
-        }
-    }
-
-    startBtn.addEventListener('click', async () => {
-        startBtn.disabled = true;
-        cameraContainer.style.display = 'block';
-
-        try {
-            videoElem.srcObject = stream;
-            videoElem.setAttribute("playsinline", true); // iOS için
-            await videoElem.play();
-
-            codeReader = new ZXing.BrowserMultiFormatReader();
-            codeReader.hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-
-            codeReader.decodeFromVideoElement(videoElem, (result, err) => {
-                if (result) {
-                    barcodeInput.value = result.text;
-                    stopStream();
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startBtn = document.getElementById('start-camera');
+            const closeBtn = document.getElementById('close-camera');
+            const cameraContainer = document.getElementById('camera-container');
+            const videoElem = document.getElementById('video');
+            const barcodeInput = document.getElementById('barcode');
+            let codeReader;
+            let stream;
+        
+            function stopStream() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                if (codeReader) {
+                    codeReader.reset();
+                    codeReader = null;
+                }
+            }
+        
+            startBtn.addEventListener('click', async () => {
+                startBtn.disabled = true;
+                cameraContainer.style.display = 'block';
+        
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    videoElem.srcObject = stream;
+        
+                    codeReader = new ZXing.BrowserMultiFormatReader(500);
+                    codeReader.hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+        
+                    codeReader.decodeFromVideoElement(videoElem, (result, err) => {
+                        if (result) {
+                            barcodeInput.value = result.text;
+                            stopStream();
+                            cameraContainer.style.display = 'none';
+                            startBtn.disabled = false;
+                        } else if (err && !(err instanceof ZXing.NotFoundException)) {
+                            console.error('Okuma hatası:', err);
+                        }
+                    });
+                } catch (e) {
+                    alert('Kamera açılamadı veya izin verilmedi: ' + e.message);
                     cameraContainer.style.display = 'none';
                     startBtn.disabled = false;
-                    codeReader.reset();
-                } else if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error('Okuma hatası:', err);
+                    stopStream();
                 }
             });
-
-        } catch (e) {
-            alert('Kamera açılamadı veya izin verilmedi: ' + e.message);
-            cameraContainer.style.display = 'none';
-            startBtn.disabled = false;
-            stopStream();
-        }
-    });
-
-    closeBtn.addEventListener('click', () => {
-        stopStream();
-        cameraContainer.style.display = 'none';
-        startBtn.disabled = false;
-    });
-});
-</script>
-
+        
+            closeBtn.addEventListener('click', () => {
+                stopStream();
+                cameraContainer.style.display = 'none';
+                startBtn.disabled = false;
+            });
+        });
+        </script>
         
     {% endblock %}
