@@ -145,19 +145,18 @@ class BaseStockMovementForm(forms.ModelForm):
                 </div>
             """),
 HTML("""
-    <div class="mb-3">
-        <label for="barcode" class="form-label">Ürün Barkodu</label>
-        <div class="input-group">
-            <input type="text" name="barcode" class="form-control" id="barcode" placeholder="Barkod Numarası" required autocomplete="off">
-            <button type="button" id="start-camera" class="btn btn-outline-secondary" title="Kamera ile Tara">📷</button>
-        </div>
-        <div id="barcode_feedback" class="invalid-feedback"></div>
-    </div>
-
-    <div id="camera-container" style="display:none; position: fixed; top:0; left:0; width: 100vw; height: 100vh; background: black; z-index: 1050;">
-        <button type="button" id="close-camera" style="position: fixed; top: 12px; right: 12px; z-index: 1100; background: rgba(255,0,0,0.8); border:none; color:#fff; font-size: 20px; padding: 5px 10px; border-radius: 4px; cursor:pointer;">✕</button>
-        <!-- Kamera video otomatik buraya yansır -->
-    </div>
+<div class="mb-3">
+  <label for="barcode" class="form-label">Ürün Barkodu</label>
+  <div class="input-group">
+    <input type="text" name="barcode" class="form-control" id="barcode" placeholder="Barkod Numarası" required autocomplete="off">
+    <button type="button" id="start-camera" class="btn btn-outline-secondary" title="Kamera ile Tara">📷</button>
+  </div>
+  <div id="barcode_feedback" class="invalid-feedback"></div>
+</div>
+<div id="camera-container" style="display:none; margin-bottom:1rem;">
+  <div id="reader" style="width:300px; height:200px; border:1px solid #ccc;"></div>
+  <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
+</div>
 """),
             Row(
                 Column('product_name_tr', css_class='form-group col-md-8 mb-2'),
