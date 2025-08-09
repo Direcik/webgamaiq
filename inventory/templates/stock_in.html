@@ -87,28 +87,33 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // RefNo input dinleme (debounce ile)
     refNoInput.addEventListener('input', debounce(function () {
-        const val = this.value.trim();
-        if (val) fetchProduct(val, 'ref_no');
-        else clearFields();
+        const value = this.value.trim();
+        if (value) {
+            fetchProduct(value, 'ref_no');
+        } else {
+            clearFields();
+        }
     }, 3000));
 
-    // Barkod input dinleme (debounce ile)
     barcodeInput.addEventListener('input', debounce(function () {
-        const val = this.value.trim();
-        if (val) fetchProduct(val, 'barcode');
-        else clearFields();
+        const value = this.value.trim();
+        if (value) {
+            fetchProduct(value, 'barcode');
+        } else {
+            clearFields();
+        }
     }, 5000));
 
-    if (barcodeInput.value) fetchProduct(barcodeInput.value.trim(), 'barcode');
+    if (barcodeInput.value) {
+        fetchProduct(barcodeInput.value.trim(), 'barcode');
+    }
 
-    // --- Kamera ve barkod tarama kısmı ---
-
+    // Kamera ve barkod tarama işlemi
     const startCameraBtn = document.getElementById('start-camera');
     const cameraContainer = document.getElementById('camera-container');
     const closeCameraBtn = document.getElementById('close-camera');
-    const readerDivId = 'video';  // 'video' id'si formdaki <video> elementi
+    const readerDivId = 'reader';
 
     let html5QrCode = null;
 
@@ -121,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
-                // Arka kamera varsa onu seç, yoksa ilk kamerayı seç
                 const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
                 const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
@@ -131,17 +135,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         fps: 15,
                         qrbox: { width: 320, height: 150 },
                         aspectRatio: 1.5,
-                        formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
+                        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
                     (decodedText, decodedResult) => {
-                        // Barkod okundu, inputa yaz ve fetch yap
                         barcodeInput.value = decodedText;
                         barcodeInput.classList.remove('is-invalid');
                         barcodeInput.classList.add('is-valid');
                         barcodeFeedback.textContent = '';
+
                         fetchProduct(decodedText, 'barcode');
 
-                        // Tara işlemini durdur ve kamera arayüzünü gizle
                         html5QrCode.stop().then(() => {
                             cameraContainer.style.display = 'none';
                         }).catch(err => {
@@ -149,7 +152,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                     },
                     (errorMessage) => {
-                        // Okuma hataları sıkıntı yaratmasın, sessiz kal
+                        // Hata mesajları konsola yazılır, kullanıcıya gösterilmez
+                        // console.warn(`Decode error: ${errorMessage}`);
                     }
                 ).catch(err => {
                     alert("Kamera başlatılamadı: " + err);
@@ -176,4 +180,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
 {% endblock %}
