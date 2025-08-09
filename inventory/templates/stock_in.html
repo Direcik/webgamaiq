@@ -109,71 +109,65 @@
             }
         });
         </script>
-        <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const startBtn = document.getElementById('start-camera');
-            const closeBtn = document.getElementById('close-camera');
-            const cameraContainer = document.getElementById('camera-container');
-            const videoElem = document.getElementById('video');
-            const barcodeInput = document.getElementById('barcode');
-        
-            let stream = null;
-            let codeReader = null;
-        
-            function stopStream() {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                    stream = null;
-                }
-                if (codeReader) {
-                    codeReader.reset();
-                    codeReader = null;
-                }
+        <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Mevcut kodların sonuna ek olarak:
+    const startCameraBtn = document.getElementById('start-camera');
+    const stopCameraBtn = document.getElementById('stop-camera');
+    const reader = document.getElementById('reader');
+    let html5QrCode;
+
+    startCameraBtn.addEventListener('click', function () {
+        startCameraBtn.disabled = true;
+        reader.style.display = "block";
+        stopCameraBtn.style.display = "inline-block";
+        barcodeInput.value = ''; // Önce temizle
+
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 150 },
+                formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
+            },
+            decodedText => {
+                barcodeInput.value = decodedText;
+                // Barkod okunduğunda diğer alanları doldurmak için:
+                fetchProduct(decodedText, 'barcode');
+
+                // Kamera kapat
+                html5QrCode.stop().then(() => {
+                    reader.style.display = "none";
+                    stopCameraBtn.style.display = "none";
+                    startCameraBtn.disabled = false;
+                }).catch(err => {
+                    console.error("Kamera durdurulamadı:", err);
+                });
+            },
+            errorMessage => {
+                //console.log("Okuma başarısız:", errorMessage);
             }
-        
-            startBtn.addEventListener('click', async function () {
-                startBtn.disabled = true;
-                cameraContainer.style.display = 'block';
-        
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: "environment" }
-                    });
-        
-                    videoElem.srcObject = stream;
-                    videoElem.setAttribute("playsinline", true);
-                    await videoElem.play();
-        
-                    codeReader = new ZXing.BrowserMultiFormatReader(500);
-                    codeReader.hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-                    codeReader.hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]);
-        
-                    codeReader.decodeFromVideoElement(videoElem, (result, err) => {
-                        if (result) {
-                            barcodeInput.value = result.text;
-                            stopStream();
-                            cameraContainer.style.display = 'none';
-                            startBtn.disabled = false;
-                            codeReader.reset();
-                        } else if (err && !(err instanceof ZXing.NotFoundException)) {
-                            console.error('Okuma hatası:', err);
-                        }
-                    });
-        
-                } catch (e) {
-                    alert('Kamera açılamadı veya izin verilmedi: ' + e.message);
-                    cameraContainer.style.display = 'none';
-                    startBtn.disabled = false;
-                    stopStream();
-                }
-            });
-        
-            closeBtn.addEventListener('click', function () {
-                stopStream();
-                cameraContainer.style.display = 'none';
-                startBtn.disabled = false;
-            });
+        ).catch(err => {
+            alert("Kamera açılamadı veya izin verilmedi: " + err);
+            reader.style.display = "none";
+            stopCameraBtn.style.display = "none";
+            startCameraBtn.disabled = false;
         });
-        </script>
+    });
+
+    stopCameraBtn.addEventListener('click', function () {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                reader.style.display = "none";
+                stopCameraBtn.style.display = "none";
+                startCameraBtn.disabled = false;
+            }).catch(err => {
+                console.error("Kamera durdurulamadı:", err);
+            });
+        }
+    });
+});
+</script>
     {% endblock %}
