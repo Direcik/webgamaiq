@@ -4,167 +4,176 @@
 {% block title %}Yeni Stok Girişi{% endblock %}
 
 {% block body %}
-<h2 class="mb-4">Yeni Stok Girişi</h2>
-<form method="post">
-    {% csrf_token %}
-    {% crispy form %}
-</form>
-{% endblock body %}
-
-{% block extra_js %}
-<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const barcodeInput = document.getElementById('barcode');
-    const refNoInput = document.getElementById('product_ref_no');
-    const productNameInput = document.getElementById('product_name_tr');
-    const stockQuantityInput = document.getElementById('product_stock_quantity');
-    const quantityInput = document.getElementById('id_quantity');
-    const barcodeFeedback = document.getElementById('barcode_feedback');
-    
-    const startBtn = document.getElementById('start-camera');
-    const closeBtn = document.getElementById('close-camera');
-    const cameraContainer = document.getElementById('camera-container');
-    const videoElem = document.getElementById('video');
-    
-    let stream = null;
-    let codeReader = null;
-
-    function clearFields() {
-        productNameInput.value = '';
-        refNoInput.value = '';
-        refNoInput.classList.remove('is-valid', 'is-invalid');
-        stockQuantityInput.value = '';
-        barcodeInput.value = '';
-        barcodeInput.classList.remove('is-valid', 'is-invalid');
-        barcodeFeedback.textContent = '';
-        quantityInput.removeAttribute('max');
-        quantityInput.placeholder = 'Giriş Adedi';
-    }
-
-    function debounce(func, delay) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    function populateFields(data) {
-        refNoInput.value = data.ref_no;
-        barcodeInput.value = data.barcode;
-        productNameInput.value = data.name_tr;
-        stockQuantityInput.value = data.stock_quantity;
-        barcodeInput.classList.add('is-valid');
-        barcodeInput.classList.remove('is-invalid');
-        refNoInput.classList.add('is-valid');
-        refNoInput.classList.remove('is-invalid');
-        barcodeFeedback.textContent = '';
-        quantityInput.placeholder = 'Giriş Adedi';
-    }
-
-    function fetchProduct(query, type) {
-        const url = type === 'barcode'
-            ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
-            : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.found) {
-                    populateFields(data);
+    <h2 class="mb-4">Yeni Stok Girişi</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+    {% endblock body %}
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const barcodeInput = document.getElementById('barcode');
+            const refNoInput = document.getElementById('product_ref_no');
+            const productNameInput = document.getElementById('product_name_tr');
+            const stockQuantityInput = document.getElementById('product_stock_quantity');
+            const quantityInput = document.getElementById('id_quantity');
+            const barcodeFeedback = document.getElementById('barcode_feedback');
+        
+            function clearFields() {
+                productNameInput.value = '';
+                refNoInput.value = '';
+                refNoInput.classList.remove('is-valid', 'is-invalid');
+                stockQuantityInput.value = '';
+                barcodeInput.value = '';
+                barcodeInput.classList.remove('is-valid', 'is-invalid');
+                barcodeFeedback.textContent = '';
+                quantityInput.removeAttribute('max');
+                quantityInput.placeholder = 'Giriş Adedi';
+            }
+            refNoInput.addEventListener('input', debounce(function () {
+                const value = this.value.trim();
+                if (value) {
+                    fetchProduct(value, 'ref_no');
+                } else {
+                    clearFields(); // Ref No temizlenince diğer alanlar da temizlensin
+                }
+            }, 3000));
+            function populateFields(data) {
+                refNoInput.value = data.ref_no;
+                barcodeInput.value = data.barcode;
+                productNameInput.value = data.name_tr;
+                stockQuantityInput.value = data.stock_quantity;
+                barcodeInput.classList.add('is-valid');
+                barcodeInput.classList.remove('is-invalid');
+                refNoInput.classList.add('is-valid');
+                refNoInput.classList.remove('is-invalid');
+                barcodeFeedback.textContent = '';
+                quantityInput.placeholder = 'Giriş Adedi';
+            }
+        
+            function fetchProduct(query, type) {
+                const url = type === 'barcode'
+                    ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
+                    : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
+        
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.found) {
+                            populateFields(data);
+                        } else {
+                            clearFields();
+                            barcodeInput.classList.add('is-invalid');
+                            barcodeFeedback.textContent = data.message || 'Ürün bulunamadı.';
+                        }
+                    })
+                    .catch(() => {
+                        clearFields();
+                        barcodeInput.classList.add('is-invalid');
+                        barcodeFeedback.textContent = 'Sunucu hatası oluştu.';
+                    });
+            }
+        
+            // Ref No girildiğinde
+            refNoInput.addEventListener('input', debounce(function () {
+                const value = this.value.trim();
+                if (value) {
+                    fetchProduct(value, 'ref_no');
+                } else {
+                    clearFields();  // Boşaldığında diğer alanları temizle
+                }
+            }, 3000));
+        
+            // Barkod girildiğinde
+            barcodeInput.addEventListener('input', debounce(function () {
+                const value = this.value.trim();
+                if (value) {
+                    fetchProduct(value, 'barcode');
                 } else {
                     clearFields();
-                    barcodeInput.classList.add('is-invalid');
-                    barcodeFeedback.textContent = data.message || 'Ürün bulunamadı.';
                 }
-            })
-            .catch(() => {
-                clearFields();
-                barcodeInput.classList.add('is-invalid');
-                barcodeFeedback.textContent = 'Sunucu hatası oluştu.';
-            });
-    }
-
-    // Ref No ve Barkod inputlarına debounce'lu event
-    refNoInput.addEventListener('input', debounce(function () {
-        const value = this.value.trim();
-        if (value) fetchProduct(value, 'ref_no');
-        else clearFields();
-    }, 300));
-
-    barcodeInput.addEventListener('input', debounce(function () {
-        const value = this.value.trim();
-        if (value) fetchProduct(value, 'barcode');
-        else clearFields();
-    }, 300));
-
-    // Kamera açma/kapama ve barkod okutma
-
-    function stopStream() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
-        if (codeReader) {
-            codeReader.reset();
-            codeReader = null;
-        }
-    }
-
-    startBtn.addEventListener('click', async () => {
-        startBtn.disabled = true;
-        cameraContainer.style.display = 'block';
-
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: "environment",
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+            }, 5000));
+        
+            // Sayfa yüklendiğinde barkod varsa otomatik getir
+            if (barcodeInput.value) {
+                fetchProduct(barcodeInput.value.trim(), 'barcode');
+            }
+        
+            function debounce(func, delay) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+        });
+        </script>
+        <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startBtn = document.getElementById('start-camera');
+            const closeBtn = document.getElementById('close-camera');
+            const cameraContainer = document.getElementById('camera-container');
+            const videoElem = document.getElementById('video');
+            const barcodeInput = document.getElementById('barcode');
+        
+            let stream = null;
+            let codeReader = null;
+        
+            function stopStream() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
                 }
-            });
-            videoElem.srcObject = stream;
-            await videoElem.play();
-
-            const hints = new Map();
-            hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-                ZXing.BarcodeFormat.CODE_128,
-                ZXing.BarcodeFormat.EAN_13,
-                ZXing.BarcodeFormat.EAN_8,
-                ZXing.BarcodeFormat.UPC_A,
-                ZXing.BarcodeFormat.QR_CODE
-            ]);
-
-            codeReader = new ZXing.BrowserMultiFormatReader(500, hints);
-
-            codeReader.decodeFromVideoElement(videoElem, (result, err) => {
-                if (result) {
-                    barcodeInput.value = result.text;
-                    stopStream();
+                if (codeReader) {
+                    codeReader.reset();
+                    codeReader = null;
+                }
+            }
+        
+            startBtn.addEventListener('click', async function () {
+                startBtn.disabled = true;
+                cameraContainer.style.display = 'block';
+        
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "environment" }
+                    });
+        
+                    videoElem.srcObject = stream;
+                    videoElem.setAttribute("playsinline", true);
+                    await videoElem.play();
+        
+                    codeReader = new ZXing.BrowserMultiFormatReader(500);
+                    codeReader.hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                    codeReader.hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]);
+        
+                    codeReader.decodeFromVideoElement(videoElem, (result, err) => {
+                        if (result) {
+                            barcodeInput.value = result.text;
+                            stopStream();
+                            cameraContainer.style.display = 'none';
+                            startBtn.disabled = false;
+                            codeReader.reset();
+                        } else if (err && !(err instanceof ZXing.NotFoundException)) {
+                            console.error('Okuma hatası:', err);
+                        }
+                    });
+        
+                } catch (e) {
+                    alert('Kamera açılamadı veya izin verilmedi: ' + e.message);
                     cameraContainer.style.display = 'none';
                     startBtn.disabled = false;
-                    barcodeInput.dispatchEvent(new Event('input')); // Ürün bilgilerini otomatik çekmek için tetikle
-                } else if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error('Okuma hatası:', err);
+                    stopStream();
                 }
             });
-
-        } catch (e) {
-            alert('Kamera açılamadı veya izin verilmedi: ' + e.message);
-            cameraContainer.style.display = 'none';
-            startBtn.disabled = false;
-            stopStream();
-        }
-    });
-
-    closeBtn.addEventListener('click', () => {
-        stopStream();
-        cameraContainer.style.display = 'none';
-        startBtn.disabled = false;
-    });
-
-});
-</script>
-{% endblock %}
+        
+            closeBtn.addEventListener('click', function () {
+                stopStream();
+                cameraContainer.style.display = 'none';
+                startBtn.disabled = false;
+            });
+        });
+        </script>
+    {% endblock %}
