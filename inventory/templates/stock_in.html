@@ -8,9 +8,9 @@
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
-        <div id="camera-container" style="display:none; margin-bottom:1rem;">
-            <div id="reader" style="width:300px; height:200px; border:1px solid #ccc;"></div>
-            <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
+        <div id="camera-container" style="display:none; max-width:320px; max-height:220px; border:1px solid #ccc; position:relative; overflow:hidden; background:black;">
+            <div id="reader" style="width:100%; height:100%;"></div>
+            <button id="close-camera" type="button" style="position:absolute; top:5px; right:5px; z-index:10;" class="btn btn-danger btn-sm">Kapat</button>
           </div>
     </form>
 
@@ -132,10 +132,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 html5QrCode.start(
                     cameraId,
                     {
-                        fps: 20,
-                        qrbox: { width: 192, height: 108 },
+                        fps: 10,
+                        qrbox: { width: 300, height: 200 },
+                        aspectRatio: 300 / 200,
                         formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
+                    (decodedText, decodedResult) => {
+                        // Kod okundu
+                    },
+                    (errorMessage) => {
+                        // Okuma hatası
+                    }
+                );
                     (decodedText, decodedResult) => {
                         // Barkod okundu
                         barcodeInput.value = decodedText;
