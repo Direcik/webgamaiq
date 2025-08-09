@@ -8,7 +8,6 @@
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
-        <button type="submit" class="btn btn-primary mt-3">Kaydet</button>
     </form>
 {% endblock %}
 
@@ -128,10 +127,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 html5QrCode.start(
                     cameraId,
                     {
-                        fps: 10,
-                        qrbox: { width: 300, height: 200 },
+                        fps: 15,
+                        qrbox: { width: 320, height: 150 },  // Barkodun yatay uzunluğuna göre ayarla
+                        aspectRatio: 1.5,
                         formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
+                    onSuccessCallback,
+                    onErrorCallback
                     (decodedText, decodedResult) => {
                         // Barkod okundu
                         barcodeInput.value = decodedText;
