@@ -1,17 +1,3 @@
-{% extends "layout.html" %}
-{% load crispy_forms_tags %}
-
-{% block title %}Yeni Stok Girişi{% endblock %}
-
-{% block body %}
-    <h2 class="mb-4">Yeni Stok Girişi</h2>
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {% crispy form %}
-    </form>
-{% endblock %}
-
-{% block extra_js %}
 <style>
     /* Kamera container tam ekran, koyu transparan arkaplan */
     #camera-container {
@@ -208,4 +194,3 @@
   });
   </script>
   
-{% endblock %}
