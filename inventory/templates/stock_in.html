@@ -161,14 +161,9 @@
                   html5QrCode.start(
                       cameraId,
                       {
-                        fps: 10,
-                        qrbox: { width: qrboxSize, height: qrboxSize },
-                        formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ],
-                        videoConstraints: {
-                            width: { ideal: 1920  },
-                            height: { ideal: 1080 },
-                            facingMode: "environment"
-                        }
+                          fps: 10,
+                          qrbox: { width: qrboxSize, height: qrboxSize },
+                          formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                       },
                       (decodedText, decodedResult) => {
                           barcodeInput.value = decodedText;
