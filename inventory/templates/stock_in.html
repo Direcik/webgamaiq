@@ -110,56 +110,53 @@
         });
         </script>
 
+        <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const startCameraBtn = document.getElementById('start-camera');
-    const closeCameraBtn = document.getElementById('close-camera');
-    const videoElem = document.getElementById('video');
-    const cameraContainer = document.getElementById('camera-container');
-    const barcodeInput = document.getElementById('barcode');
+document.addEventListener('DOMContentLoaded', () => {
+  const codeReader = new ZXing.BrowserMultiFormatReader();
+  const videoElem = document.getElementById('video');
+  const startBtn = document.getElementById('start-camera');
+  const closeBtn = document.getElementById('close-camera');
+  const barcodeInput = document.getElementById('barcode');
+  const cameraContainer = document.getElementById('camera-container');
 
-    let codeReader;
-    let selectedDeviceId;
+  startBtn.addEventListener('click', () => {
+    cameraContainer.style.display = 'block';
+    startBtn.disabled = true;
 
-    startCameraBtn.addEventListener('click', async () => {
-        cameraContainer.style.display = 'block';
-        startCameraBtn.disabled = true;
-
-        codeReader = new ZXing.BrowserMultiFormatReader();
-
-        try {
-            const videoInputDevices = await codeReader.listVideoInputDevices();
-            if(videoInputDevices.length === 0){
-                alert('Kamera bulunamadı!');
-                return;
-            }
-            selectedDeviceId = videoInputDevices[0].deviceId;
-            await codeReader.decodeFromVideoDevice(selectedDeviceId, videoElem, (result, err) => {
-                if (result) {
-                    barcodeInput.value = result.text;
-                    // Okuma yapıldıktan sonra kamera durdurulur ve gizlenir
-                    codeReader.reset();
-                    cameraContainer.style.display = 'none';
-                    startCameraBtn.disabled = false;
-                }
-                if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error(err);
-                }
-            });
-        } catch (error) {
-            alert('Kamera başlatılırken hata oluştu: ' + error);
-            startCameraBtn.disabled = false;
-            cameraContainer.style.display = 'none';
+    codeReader.listVideoInputDevices()
+      .then(videoInputDevices => {
+        if(videoInputDevices.length === 0){
+          alert('Kamera bulunamadı');
+          startBtn.disabled = false;
+          return;
         }
-    });
+        const deviceId = videoInputDevices[0].deviceId;
 
-    closeCameraBtn.addEventListener('click', () => {
-        if (codeReader) {
+        codeReader.decodeFromVideoDevice(deviceId, videoElem, (result, err) => {
+          if (result) {
+            barcodeInput.value = result.text;
             codeReader.reset();
-        }
+            cameraContainer.style.display = 'none';
+            startBtn.disabled = false;
+          }
+          if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error(err);
+          }
+        });
+      })
+      .catch(err => {
+        alert('Kamera erişim hatası: ' + err);
+        startBtn.disabled = false;
         cameraContainer.style.display = 'none';
-        startCameraBtn.disabled = false;
-    });
+      });
+  });
+
+  closeBtn.addEventListener('click', () => {
+    codeReader.reset();
+    cameraContainer.style.display = 'none';
+    startBtn.disabled = false;
+  });
 });
 </script>
         
