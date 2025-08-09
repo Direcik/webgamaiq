@@ -13,30 +13,35 @@
 
 {% block extra_js %}
 <style>
-  #camera-container {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    background-color: rgba(0,0,0,0.85);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  #reader {
-    width: 100%;
-    height: 100%;
-    max-width: 100vw;
-    max-height: 100vh;
-  }
-
-  #close-camera {
-    margin-top: 10px;
-  }
-</style>
+    /* Kamera container fullscreen, transparan koyu arka plan */
+    #camera-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      background-color: rgba(0, 0, 0, 0.85);
+      display: none; /* JS ile açılacak */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    /* reader alanı full ekran doldursun */
+    #reader {
+      width: 100vw;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+  
+    /* Kapat butonu ekranın altında küçük boşlukla */
+    #close-camera {
+      margin-top: 10px;
+      z-index: 10000;
+    }
+  </style>
+  
 
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 

@@ -153,27 +153,11 @@ class BaseStockMovementForm(forms.ModelForm):
             </div>
             <div id="barcode_feedback" class="invalid-feedback"></div>
             </div>
-
-            <div id="camera-container" style="
-                display:none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background-color: rgba(0,0,0,0.85);
-                z-index: 9999;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                margin-bottom: 1rem;
-            ">
-            <div id="reader" style="width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; border: 1px solid #ccc;"></div>
+            <div id="camera-container" style="display:none; margin-bottom:1rem; border:1px solid #ccc; width:100%; max-width:600px; position:relative;">
+            <div id="reader" style="width:100%; height:100vh; max-height:600px;"></div>
             <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
             </div>
             """),
-
             Row(
                 Column('product_name_tr', css_class='form-group col-md-8 mb-2'),
                 Column('product_stock_quantity', css_class='form-group col-md-4 mb-2'),
