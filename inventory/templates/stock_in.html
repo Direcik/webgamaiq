@@ -112,63 +112,61 @@
 
         <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const codeReader = new ZXing.BrowserMultiFormatReader();
-  const videoElem = document.getElementById('video');
-  const startBtn = document.getElementById('start-camera');
-  const closeBtn = document.getElementById('close-camera');
-  const barcodeInput = document.getElementById('barcode');
-  const cameraContainer = document.getElementById('camera-container');
-
-  let scanning = false;
-
-  startBtn.addEventListener('click', () => {
-    if (scanning) return; // zaten tarıyor
-    scanning = true;
-    cameraContainer.style.display = 'block';
-    startBtn.disabled = true;
-
-    codeReader.listVideoInputDevices()
-      .then(videoInputDevices => {
-        if (videoInputDevices.length === 0) {
-          alert('Kamera bulunamadı!');
-          scanning = false;
-          startBtn.disabled = false;
-          cameraContainer.style.display = 'none';
-          return;
-        }
-        const deviceId = videoInputDevices[0].deviceId;
-
-        codeReader.decodeFromVideoDevice(deviceId, videoElem, (result, err) => {
-          if (result) {
-            barcodeInput.value = result.text;
-            scanning = false;
-            codeReader.reset();
+    document.addEventListener('DOMContentLoaded', function () {
+        const barcodeInput = document.getElementById('barcode');
+        const cameraContainer = document.getElementById('camera-container');
+        const videoElem = document.getElementById('video');
+        const startBtn = document.getElementById('start-scan-btn');
+        let codeReader = null;
+        let stream = null;
+      
+        startBtn.addEventListener('click', async function () {
+          startBtn.disabled = true;
+          cameraContainer.style.display = 'block';
+      
+          try {
+            // Kamera stream al, arka kamerayı tercih et
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: { exact: "environment" } }
+            });
+      
+            videoElem.srcObject = stream;
+            videoElem.setAttribute("playsinline", true); // iOS için
+            await videoElem.play();
+      
+            codeReader = new ZXing.BrowserMultiFormatReader(500); // 500 ms delay
+            codeReader.hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      
+            codeReader.decodeFromVideoElement(videoElem, (result, err) => {
+              if (result) {
+                // Barkod başarıyla okundu
+                barcodeInput.value = result.text;
+                // Kamerayı kapat
+                stopStream();
+                cameraContainer.style.display = 'none';
+                startBtn.disabled = false;
+                codeReader.reset();
+              } else if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error('Okuma hatası:', err);
+              }
+            });
+      
+          } catch (e) {
+            alert('Kamera açılamadı veya izin verilmedi: ' + e.message);
             cameraContainer.style.display = 'none';
             startBtn.disabled = false;
-          }
-          if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
+            if (stream) stopStream();
           }
         });
-      })
-      .catch(err => {
-        alert('Kamera erişim hatası: ' + err);
-        scanning = false;
-        startBtn.disabled = false;
-        cameraContainer.style.display = 'none';
+      
+        function stopStream() {
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+          }
+        }
       });
-  });
-
-  closeBtn.addEventListener('click', () => {
-    if (scanning) {
-      scanning = false;
-      codeReader.reset();
-    }
-    cameraContainer.style.display = 'none';
-    startBtn.disabled = false;
-  });
-});
+      
 </script>
         
     {% endblock %}
