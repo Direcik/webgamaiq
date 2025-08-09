@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cameraContainer.style.display = 'block';
 
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
             videoElem.srcObject = stream;
             videoElem.setAttribute("playsinline", true); // iOS için
             await videoElem.play();
