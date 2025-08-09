@@ -145,10 +145,18 @@ class BaseStockMovementForm(forms.ModelForm):
                 </div>
             """),
             HTML("""
-            <div id="camera-container" style="display:none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:black; z-index:1050;">
-                <video id="video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
-                <button id="close-camera" type="button" style="position: fixed; top:10px; right:10px; background:rgba(255,0,0,0.85); border:none; color:white; font-weight:bold; border-radius:50%; width:36px; height:36px; cursor:pointer; z-index:1100;" title="Kamerayı Kapat">✕</button>
-            </div>
+                <div class="mb-3">
+                    <label for="barcode" class="form-label">Ürün Barkodu</label>
+                    <div class="input-group">
+                        <input type="text" name="barcode" id="barcode" class="form-control" placeholder="Barkod Numarası" autocomplete="off" required>
+                        <button type="button" id="start-camera" class="btn btn-outline-secondary" title="Kamera ile Tara">📷</button>
+                    </div>
+                    <div id="barcode_feedback" class="invalid-feedback"></div>
+                </div>
+                <div id="camera-container" style="display:none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:black; z-index:1050;">
+                    <video id="video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+                    <button id="close-camera" type="button" style="position: fixed; top:10px; right:10px; background:rgba(255,0,0,0.85); border:none; color:white; font-weight:bold; border-radius:50%; width:36px; height:36px; cursor:pointer; z-index:1100;" title="Kamerayı Kapat">✕</button>
+                </div>
             """),
             Row(
                 Column('product_name_tr', css_class='form-group col-md-8 mb-2'),
