@@ -153,6 +153,10 @@ class BaseStockMovementForm(forms.ModelForm):
                     </div>
                     <div id="barcode_feedback" class="invalid-feedback"></div>
                 </div>
+                <div id="camera-container" style="display:none; margin-bottom:1rem;">
+                    <video id="video" width="300" height="200" autoplay playsinline muted style="border:1px solid #ccc;"></video>
+                    <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
+                </div>
             """),
             Row(
                 Column('product_name_tr', css_class='form-group col-md-8 mb-2'),
