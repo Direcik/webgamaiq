@@ -8,7 +8,10 @@
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
-
+        <div id="camera-container" style="display:none; margin-bottom:1rem;">
+            <div id="reader" style="width:300px; height:200px; border:1px solid #ccc;"></div>
+            <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
+          </div>
     </form>
 
 {% endblock %}
