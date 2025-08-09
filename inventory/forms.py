@@ -145,18 +145,18 @@ class BaseStockMovementForm(forms.ModelForm):
                 </div>
             """),
             HTML("""
-            <div class="mb-3">
-                <label for="barcode" class="form-label">Ürün Barkodu</label>
-                <div class="input-group">
-                <input type="text" name="barcode" class="form-control" id="barcode" placeholder="Barkod Numarası" required autocomplete="off">
-                <button type="button" id="start-camera" class="btn btn-outline-secondary" title="Kamera ile Tara">📷</button>
+                <div class="mb-3">
+                    <label for="barcode" class="form-label">Ürün Barkodu</label>
+                    <div class="input-group">
+                        <input type="text" name="barcode" class="form-control" id="barcode" placeholder="Barkod Numarası" required autocomplete="off">
+                        <button type="button" id="start-camera" class="btn btn-outline-secondary" title="Kamera ile Tara">📷</button>
+                    </div>
+                    <div id="barcode_feedback" class="invalid-feedback"></div>
                 </div>
-                <div id="barcode_feedback" class="invalid-feedback"></div>
-            </div>
-            <div id="camera-container" style="display:none; margin-bottom:1rem;">
-                <div id="reader" style="width:300px; height:200px;"></div>
-                <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
-            </div>
+                <div id="camera-container" style="display:none; margin-bottom:1rem;">
+                    <div id="reader" style="width:300px; height:150px; border:1px solid #ccc;"></div>
+                    <button type="button" id="close-camera" class="btn btn-danger mt-2">Kapat</button>
+                </div>
             """),
             Row(
                 Column('product_name_tr', css_class='form-group col-md-8 mb-2'),
