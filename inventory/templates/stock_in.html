@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const quantityInput = document.getElementById('id_quantity');
     const barcodeFeedback = document.getElementById('barcode_feedback');
 
-    // Mevcut debounce, fetchProduct vs. kodun aynen burada olacak
     function clearFields() {
         productNameInput.value = '';
         refNoInput.value = '';
@@ -114,13 +113,17 @@ document.addEventListener('DOMContentLoaded', function () {
     startCameraBtn.addEventListener('click', function () {
         cameraContainer.style.display = 'block';
 
+        // Fullscreen başlat
+        if (cameraContainer.requestFullscreen) {
+            cameraContainer.requestFullscreen().catch(err => console.error('Fullscreen açılamadı:', err));
+        }
+
         if (!html5QrCode) {
             html5QrCode = new Html5Qrcode(readerDivId);
         }
 
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
-                // Arka kamerayı bulmaya çalış (label içinde 'back' varsa)
                 const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
                 const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
@@ -132,24 +135,26 @@ document.addEventListener('DOMContentLoaded', function () {
                         formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ]
                     },
                     (decodedText, decodedResult) => {
-                        // Barkod okundu
                         barcodeInput.value = decodedText;
                         barcodeInput.classList.remove('is-invalid');
                         barcodeInput.classList.add('is-valid');
                         barcodeFeedback.textContent = '';
 
-                        // İstersen otomatik fetch yapabilirsin:
                         fetchProduct(decodedText, 'barcode');
 
                         html5QrCode.stop().then(() => {
                             cameraContainer.style.display = 'none';
+
+                            // Fullscreen kapat
+                            if (document.fullscreenElement) {
+                                document.exitFullscreen();
+                            }
                         }).catch(err => {
                             console.error('Kamera durdurma hatası:', err);
                         });
                     },
                     (errorMessage) => {
-                        // Okuma hataları burada çok yazdırılmasın, konsola logla
-                        // console.warn(`Decode error: ${errorMessage}`);
+                        // Decode hataları konsola loglanabilir
                     }
                 ).catch(err => {
                     alert("Kamera başlatılamadı: " + err);
@@ -167,11 +172,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if (html5QrCode) {
             html5QrCode.stop().then(() => {
                 cameraContainer.style.display = 'none';
+
+                // Fullscreen kapat
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
             }).catch(err => {
                 console.error('Kamera durdurma hatası:', err);
             });
         } else {
             cameraContainer.style.display = 'none';
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
         }
     });
 });
