@@ -59,8 +59,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fetchProduct(query, type) {
         const url = type === 'barcode'
-            ? {% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}
-            : {% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)};
+            ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
+            : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
 
         fetch(url)
             .then(response => response.json())
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     (errorMessage) => {
                         // Okuma hataları burada çok yazdırılmasın, konsola logla
-                        // console.warn(Decode error: ${errorMessage});
+                        // console.warn(`Decode error: ${errorMessage}`);
                     }
                 ).catch(err => {
                     alert("Kamera başlatılamadı: " + err);
