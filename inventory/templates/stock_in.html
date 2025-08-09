@@ -8,8 +8,15 @@
     <form method="post" novalidate>
         {% csrf_token %}
         {% crispy form %}
+        <button type="button" id="start-camera" class="btn btn-primary mb-3">Kamerayı Aç</button>
+    
+        <div id="camera-container" style="display:none; position:fixed;top:0;left:0;width:100vw;height:100vh; background:black; z-index:1000;">
+            <video id="video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+            <button id="close-camera" type="button"
+                style="position:fixed; top:10px; right:10px; background:rgba(255,0,0,0.85); border:none; color:white; border-radius:50%; width:36px; height:36px; cursor:pointer; z-index:1100;"
+                title="Kamerayı Kapat">✕</button>
+        </div>
     </form>
-
 
 {% endblock %}
 
@@ -17,160 +24,160 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const barcodeInput = document.getElementById('barcode');
-        const refNoInput = document.getElementById('product_ref_no');
-        const productNameInput = document.getElementById('product_name_tr');
-        const stockQuantityInput = document.getElementById('product_stock_quantity');
-        const quantityInput = document.getElementById('id_quantity');
-        const barcodeFeedback = document.getElementById('barcode_feedback');
-    
-        function clearFields() {
-            productNameInput.value = '';
-            refNoInput.value = '';
-            refNoInput.classList.remove('is-valid', 'is-invalid');
-            stockQuantityInput.value = '';
-            barcodeInput.value = '';
-            barcodeInput.classList.remove('is-valid', 'is-invalid');
-            barcodeFeedback.textContent = '';
-            quantityInput.removeAttribute('max');
-            quantityInput.placeholder = 'Giriş Adedi';
-        }
-    
-        function debounce(func, delay) {
-            let timeout;
-            return function (...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), delay);
-            };
-        }
-    
-        function populateFields(data) {
-            refNoInput.value = data.ref_no;
-            barcodeInput.value = data.barcode;
-            productNameInput.value = data.name_tr;
-            stockQuantityInput.value = data.stock_quantity;
-            barcodeInput.classList.add('is-valid');
-            barcodeInput.classList.remove('is-invalid');
-            refNoInput.classList.add('is-valid');
-            refNoInput.classList.remove('is-invalid');
-            barcodeFeedback.textContent = '';
-            quantityInput.placeholder = 'Giriş Adedi';
-        }
-    
-        function fetchProduct(query, type) {
-            const url = type === 'barcode'
-                ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
-                : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
-    
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.found) {
-                        populateFields(data);
-                    } else {
-                        clearFields();
-                        barcodeInput.classList.add('is-invalid');
-                        barcodeFeedback.textContent = data.message || 'Ürün bulunamadı.';
-                    }
-                })
-                .catch(() => {
+document.addEventListener('DOMContentLoaded', function () {
+    const barcodeInput = document.getElementById('barcode');
+    const refNoInput = document.getElementById('product_ref_no');
+    const productNameInput = document.getElementById('product_name_tr');
+    const stockQuantityInput = document.getElementById('product_stock_quantity');
+    const quantityInput = document.getElementById('id_quantity');
+    const barcodeFeedback = document.getElementById('barcode_feedback');
+
+    function clearFields() {
+        productNameInput.value = '';
+        refNoInput.value = '';
+        refNoInput.classList.remove('is-valid', 'is-invalid');
+        stockQuantityInput.value = '';
+        barcodeInput.value = '';
+        barcodeInput.classList.remove('is-valid', 'is-invalid');
+        barcodeFeedback.textContent = '';
+        quantityInput.removeAttribute('max');
+        quantityInput.placeholder = 'Giriş Adedi';
+    }
+
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    function populateFields(data) {
+        refNoInput.value = data.ref_no;
+        barcodeInput.value = data.barcode;
+        productNameInput.value = data.name_tr;
+        stockQuantityInput.value = data.stock_quantity;
+        barcodeInput.classList.add('is-valid');
+        barcodeInput.classList.remove('is-invalid');
+        refNoInput.classList.add('is-valid');
+        refNoInput.classList.remove('is-invalid');
+        barcodeFeedback.textContent = '';
+        quantityInput.placeholder = 'Giriş Adedi';
+    }
+
+    function fetchProduct(query, type) {
+        const url = type === 'barcode'
+            ? `{% url 'get_product_info_by_barcode_json' %}?barcode=${encodeURIComponent(query)}`
+            : `{% url 'get_product_info_by_refno_json' %}?ref_no=${encodeURIComponent(query)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.found) {
+                    populateFields(data);
+                } else {
                     clearFields();
                     barcodeInput.classList.add('is-invalid');
-                    barcodeFeedback.textContent = 'Sunucu hatası oluştu.';
-                });
-        }
-    
-        refNoInput.addEventListener('input', debounce(function () {
-            const value = this.value.trim();
-            if (value) {
-                fetchProduct(value, 'ref_no');
-            } else {
-                clearFields();
-            }
-        }, 3000));
-    
-        barcodeInput.addEventListener('input', debounce(function () {
-            const value = this.value.trim();
-            if (value) {
-                fetchProduct(value, 'barcode');
-            } else {
-                clearFields();
-            }
-        }, 5000));
-    
-        if (barcodeInput.value) {
-            fetchProduct(barcodeInput.value.trim(), 'barcode');
-        }
-    
-        // Kamera açma & barkod okuma
-        const startCameraBtn = document.getElementById('start-camera');
-        const cameraContainer = document.getElementById('camera-container');
-        const closeCameraBtn = document.getElementById('close-camera');
-        const videoElem = document.getElementById('video');
-    
-        let html5QrCode = null;
-    
-        startCameraBtn.addEventListener('click', function () {
-            cameraContainer.style.display = 'block';
-    
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode(/* boş bırakıyoruz, video element ile kullanacağız */);
-            }
-    
-            Html5Qrcode.getCameras().then(cameras => {
-                if (cameras && cameras.length) {
-                    const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
-                    const cameraId = backCamera ? backCamera.id : cameras[0].id;
-    
-                    html5QrCode.start(
-                        cameraId,
-                        {
-                            fps: 10,
-                            qrbox: false, // Tam ekran tarama, çerçeve yok
-                            formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
-                        },
-                        (decodedText, decodedResult) => {
-                            barcodeInput.value = decodedText;
-                            barcodeInput.classList.remove('is-invalid');
-                            barcodeInput.classList.add('is-valid');
-                            barcodeFeedback.textContent = '';
-    
-                            fetchProduct(decodedText, 'barcode');
-    
-                            html5QrCode.stop().then(() => {
-                                cameraContainer.style.display = 'none';
-                            }).catch(err => {
-                                console.error('Kamera durdurma hatası:', err);
-                            });
-                        },
-                        (errorMessage) => {
-                            // İstersen buraya hata mesajları yazdırabilirsin, ama genelde boş bırakılır
-                        }
-                    ).catch(err => {
-                        alert("Kamera başlatılamadı: " + err);
-                    });
-                } else {
-                    alert('Cihazda kamera bulunamadı.');
+                    barcodeFeedback.textContent = data.message || 'Ürün bulunamadı.';
                 }
-            }).catch(err => {
-                alert("Kamera bilgisi alınamadı: " + err);
+            })
+            .catch(() => {
+                clearFields();
+                barcodeInput.classList.add('is-invalid');
+                barcodeFeedback.textContent = 'Sunucu hatası oluştu.';
             });
-        });
-    
-        closeCameraBtn.addEventListener('click', function () {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    cameraContainer.style.display = 'none';
-                }).catch(err => {
-                    console.error('Kamera kapatma hatası:', err);
+    }
+
+    refNoInput.addEventListener('input', debounce(function () {
+        const value = this.value.trim();
+        if (value) {
+            fetchProduct(value, 'ref_no');
+        } else {
+            clearFields();
+        }
+    }, 3000));
+
+    barcodeInput.addEventListener('input', debounce(function () {
+        const value = this.value.trim();
+        if (value) {
+            fetchProduct(value, 'barcode');
+        } else {
+            clearFields();
+        }
+    }, 5000));
+
+    if (barcodeInput.value) {
+        fetchProduct(barcodeInput.value.trim(), 'barcode');
+    }
+
+    // Kamera açma & barkod okuma
+    const startCameraBtn = document.getElementById('start-camera');
+    const cameraContainer = document.getElementById('camera-container');
+    const closeCameraBtn = document.getElementById('close-camera');
+
+    let html5QrCode = null;
+
+    startCameraBtn.addEventListener('click', function () {
+        cameraContainer.style.display = 'block';
+
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("camera-container"); // Kamera container id ile başlat
+        }
+
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+                const backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back'));
+                const cameraId = backCamera ? backCamera.id : cameras[0].id;
+
+                html5QrCode.start(
+                    cameraId,
+                    {
+                        fps: 10,
+                        qrbox: false,  // Tam ekran tarama, çerçeve yok
+                        formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
+                    },
+                    (decodedText, decodedResult) => {
+                        barcodeInput.value = decodedText;
+                        barcodeInput.classList.remove('is-invalid');
+                        barcodeInput.classList.add('is-valid');
+                        barcodeFeedback.textContent = '';
+
+                        fetchProduct(decodedText, 'barcode');
+
+                        html5QrCode.stop().then(() => {
+                            cameraContainer.style.display = 'none';
+                        }).catch(err => {
+                            console.error('Kamera durdurma hatası:', err);
+                        });
+                    },
+                    (errorMessage) => {
+                        // Okuma hataları için genelde boş bırakılır
+                    }
+                ).catch(err => {
+                    alert("Kamera başlatılamadı: " + err);
                 });
+
             } else {
-                cameraContainer.style.display = 'none';
+                alert('Cihazda kamera bulunamadı.');
             }
+        }).catch(err => {
+            alert("Kamera bilgisi alınamadı: " + err);
         });
     });
-    
+
+    closeCameraBtn.addEventListener('click', function () {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                cameraContainer.style.display = 'none';
+            }).catch(err => {
+                console.error('Kamera kapatma hatası:', err);
+            });
+        } else {
+            cameraContainer.style.display = 'none';
+        }
+    });
+});
 </script>
+
 
 {% endblock %}
