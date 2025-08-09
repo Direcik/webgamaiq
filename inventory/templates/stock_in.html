@@ -120,15 +120,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const barcodeInput = document.getElementById('barcode');
   const cameraContainer = document.getElementById('camera-container');
 
+  let scanning = false;
+
   startBtn.addEventListener('click', () => {
+    if (scanning) return; // zaten tarıyor
+    scanning = true;
     cameraContainer.style.display = 'block';
     startBtn.disabled = true;
 
     codeReader.listVideoInputDevices()
       .then(videoInputDevices => {
-        if(videoInputDevices.length === 0){
-          alert('Kamera bulunamadı');
+        if (videoInputDevices.length === 0) {
+          alert('Kamera bulunamadı!');
+          scanning = false;
           startBtn.disabled = false;
+          cameraContainer.style.display = 'none';
           return;
         }
         const deviceId = videoInputDevices[0].deviceId;
@@ -136,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         codeReader.decodeFromVideoDevice(deviceId, videoElem, (result, err) => {
           if (result) {
             barcodeInput.value = result.text;
+            scanning = false;
             codeReader.reset();
             cameraContainer.style.display = 'none';
             startBtn.disabled = false;
@@ -147,13 +154,17 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => {
         alert('Kamera erişim hatası: ' + err);
+        scanning = false;
         startBtn.disabled = false;
         cameraContainer.style.display = 'none';
       });
   });
 
   closeBtn.addEventListener('click', () => {
-    codeReader.reset();
+    if (scanning) {
+      scanning = false;
+      codeReader.reset();
+    }
     cameraContainer.style.display = 'none';
     startBtn.disabled = false;
   });
