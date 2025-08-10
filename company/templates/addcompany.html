@@ -1,62 +1,20 @@
 {% extends "layout.html" %}
-{% load crispy_forms_tags %}
 {% block body %}
+{% load crispy_forms_tags %}
+
 
 <div class="card mb-4">
     <div class="card-header">
         <h3 class="mb-0">Firma Ekle</h3>
     </div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" >
             {% csrf_token %}
-
-            <!-- Vergi No alanı + Ara butonu -->
-            <div class="mb-3">
-                <label for="id_tax_number" class="form-label">Vergi No</label>
-                <div class="input-group">
-                    {{ form.tax_number }}
-                    <button type="button" class="btn btn-outline-secondary" id="search-company-btn">Ara</button>
-                </div>
-            </div>
-
-            {{ form.name|as_crispy_field }}
-            {{ form.address|as_crispy_field }}
-            {{ form.phone|as_crispy_field }}
-            {{ form.email|as_crispy_field }}
-
+            {{form|crispy}}
             <button type="submit" class="btn btn-success">Firma Ekle</button>
         </form>
     </div>
 </div>
-
-
-
 {% endblock body %}
-
-{% block extra_js %}
-<script>
-    document.getElementById('search-company-btn').addEventListener('click', function() {
-        const taxNumber = document.getElementById('id_tax_number').value;
-        if (!taxNumber) {
-            alert("Lütfen vergi numarası girin");
-            return;
-        }
     
-        fetch(`/api/get-company/?tax_number=${taxNumber}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    document.getElementById('id_name').value = data.name || '';
-                    document.getElementById('id_address').value = data.address || '';
-                    document.getElementById('id_email').value = data.email || '';
-                    document.getElementById('id_phone').value = data.phone || '';
-                }
-            })
-            .catch(err => {
-                alert("API hatası: " + err);
-            });
-    });
-    </script>
-{% endblock %}
+</html>
