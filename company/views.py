@@ -56,7 +56,6 @@ def deleteCompany(request, id):
         return redirect("companydashboard")
 
 
-@login_required
 @require_GET
 def get_company_from_izibiz(request):
     tax_number = request.GET.get('tax_number')
