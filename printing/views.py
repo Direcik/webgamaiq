@@ -13,7 +13,7 @@ import base64
 
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
-    return render(request, 'printing:printing_order_list.html', {'orders': orders})
+    return render(request, 'printing_order_list.html', {'orders': orders})
 
 def printing_order_create(request):
     if request.method == 'POST':
