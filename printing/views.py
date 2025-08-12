@@ -9,7 +9,7 @@ import base64
 
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
-    return render(request, 'printing/printing_order_list.html', {'orders': orders})
+    return render(request, 'printing_order_list.html', {'orders': orders})
 
 def printing_order_create(request):
     if request.method == 'POST':
@@ -19,7 +19,7 @@ def printing_order_create(request):
             return redirect('printing_order_detail', pk=order.pk)
     else:
         form = PrintingOrderForm()
-    return render(request, 'printing/printing_order_form.html', {'form': form})
+    return render(request, 'printing_order_form.html', {'form': form})
 
 def printing_order_detail(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
@@ -42,7 +42,7 @@ def printing_order_detail(request, pk):
     qr.save(buffer)
     qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
 
-    return render(request, 'printing/printing_order_detail.html', {
+    return render(request, 'printing_order_detail.html', {
         'order': order,
         'movements': movements,
         'form': form,
