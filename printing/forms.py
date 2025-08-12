@@ -4,15 +4,17 @@ from crispy_forms.layout import Submit
 from .models import PrintingOrder, PrintingOrderMovement, PrintingRef
 from inventory.models import Product
 
+
 class PrintingOrderForm(forms.ModelForm):
     class Meta:
         model = PrintingOrder
-        fields = ['ref', 'paper', 'weight_kg', 'print_surface', 'date', 'description']
+        fields = ['ref_no', 'paper', 'surface', 'weight', 'date', 'description']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Sadece category 'KAĞIT' olanlar gelsin
-        self.fields['paper'].queryset = Product.objects.filter(category='KAĞIT')
+
+        # Sadece KAĞIT kategorisindekileri getir
+        self.fields['paper'].queryset = Product.objects.filter(category__name__iexact="KAĞIT")
         self.helper = FormHelper()
         self.helper.add_input(Submit('submit', 'Kaydet'))
 
