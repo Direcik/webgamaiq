@@ -2,10 +2,22 @@
 {% extends "layout.html" %}
 {% block body %}
 {% load crispy_forms_tags %}
+<div class="row mb-3">
+    <div class="col-md-4">
+        <a href="{% url 'printing:printing_order_create' %}" class="btn btn-primary btn-sm w-100">
+            Yeni Sipariş
+        </a>
+    </div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-primary btn-sm">
+            Baskı Listesi
+        </a>
+    </div>
+</div>
 <div class="card mb-4">
     <div class="card-header">
-        <h3>Baskı Siparişleri</h3>
-        <a href="{% url 'printing:printing_order_create' %}">Yeni Sipariş</a>
+        <h2>Baskı Siparişleri</h2>
     </div>
     <div class="card-body">
         <ul>

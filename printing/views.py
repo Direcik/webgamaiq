@@ -1,11 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .models import PrintingOrder
-from .forms import PrintingOrderForm, PrintingOrderMovementForm
+from django.contrib import messages
+from .models import PrintingOrder, PrintingRef
+from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
 
 import qrcode
 from io import BytesIO
 import base64
+
+
+
 
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
@@ -48,3 +52,37 @@ def printing_order_detail(request, pk):
         'form': form,
         'qr_code': qr_code_base64,
     })
+
+
+def printing_ref_list(request):
+    refs = PrintingRef.objects.all()
+    return render(request, 'printing_ref_list.html', {'refs': refs})
+
+def printing_ref_add(request):
+    if request.method == 'POST':
+        form = PrintingRefForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Baskı ref numarası eklendi.')
+            return redirect('printing_ref_list')
+    else:
+        form = PrintingRefForm()
+    return render(request, 'printing_ref_form.html', {'form': form})
+
+def printing_ref_edit(request, pk):
+    ref = get_object_or_404(PrintingRef, pk=pk)
+    if request.method == 'POST':
+        form = PrintingRefForm(request.POST, instance=ref)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Baskı ref numarası güncellendi.')
+            return redirect('printing_ref_list')
+    else:
+        form = PrintingRefForm(instance=ref)
+    return render(request, 'printing_ref_form.html', {'form': form})
+
+def printing_ref_delete(request, pk):
+    ref = get_object_or_404(PrintingRef, pk=pk)
+    ref.delete()
+    messages.success(request, 'Baskı ref numarası silindi.')
+    return redirect('printing_ref_list')

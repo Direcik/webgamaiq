@@ -1,0 +1,15 @@
+
+{% extends "layout.html" %}
+{% block body %}
+{% load crispy_forms_tags %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Baskı Ref No Kaydı</h2>
+    </div>
+    <div class="card-body">
+        {% csrf_token %}
+        {% crispy form %}
+    </div>
+</div>
+{% endblock body %}

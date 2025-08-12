@@ -1,0 +1,40 @@
+
+{% extends "layout.html" %}
+{% block body %}
+{% load crispy_forms_tags %}
+
+<a href="{% url 'printing_ref_add' %}" class="btn btn-primary mb-3">Yeni Ref Ekle</a>
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Baskı Ref Numaraları</h2>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ref No</th>
+                    <th>Kazan Ölçüsü</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ref in refs %}
+                <tr>
+                    <td>{{ ref.ref_no }}</td>
+                    <td>{{ ref.kazan_size }}</td>
+                    <td>
+                        <a href="{% url 'printing:printing_ref_edit' ref.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
+                        <a href="{% url 'printing:printing_ref_delete' ref.pk %}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Silmek istediğine emin misin?')">Sil</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">Henüz kayıt yok.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock body %}
