@@ -13,11 +13,11 @@ class PrintingRef(models.Model):
 
 
 class PrintingOrder(models.Model):
-    ref = models.ForeignKey(PrintingRef, on_delete=models.PROTECT, verbose_name="Baskı Ref No")
+    ref_no = models.ForeignKey(PrintingRef, on_delete=models.PROTECT, verbose_name="Baskı Ref No")
     order_no = models.CharField(max_length=20, unique=True, editable=False)
     paper = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Kullanılacak Kağıt")
-    weight_kg = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam Kg")
-    print_surface = models.CharField(
+    weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam Kg")
+    surface = models.CharField(
         max_length=10,
         choices=[('ic', 'İç'), ('dis', 'Dış')],
         verbose_name="Baskı Yüzeyi"
