@@ -40,7 +40,7 @@ def printing_order_detail(request, pk):
         form = PrintingOrderMovementForm()
 
     # QR kod dinamik oluşturma
-    url = request.build_absolute_uri(reverse('printing_order_detail', args=[order.pk]))
+    url = request.build_absolute_uri(reverse('printing:printing_order_detail', args=[order.pk]))
     qr = qrcode.make(url)
     buffer = BytesIO()
     qr.save(buffer)
