@@ -22,7 +22,7 @@
         <h3>Hareket Ekle</h3>
         <form method="post">
             {% csrf_token %}
-            {{ form|crispy }}
+            {% crispy form %}
         </form>
     </div>
 </div>
