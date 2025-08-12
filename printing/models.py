@@ -4,12 +4,19 @@ from django.urls import reverse
 import uuid
 from inventory.models import Product  # mevcut ürün modelin
 
-class PrintingOrder(models.Model):
+class PrintingRef(models.Model):
     ref_no = models.CharField(max_length=50, unique=True, verbose_name="Baskı Ref No")
+    kazan_size = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Kazan Ölçüsü (cm)")
+
+    def __str__(self):
+        return self.ref_no
+
+
+class PrintingOrder(models.Model):
+    ref = models.ForeignKey(PrintingRef, on_delete=models.PROTECT, verbose_name="Baskı Ref No")
     order_no = models.CharField(max_length=20, unique=True, editable=False)
     paper = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Kullanılacak Kağıt")
     weight_kg = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam Kg")
-    kazan_size = models.CharField(max_length=50, verbose_name="Kazan Ölçüsü")
     print_surface = models.CharField(
         max_length=10,
         choices=[('ic', 'İç'), ('dis', 'Dış')],
@@ -24,7 +31,7 @@ class PrintingOrder(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.ref_no} ({self.order_no})"
+        return f"{self.ref.ref_no} ({self.order_no})"
 
 
 class PrintingOrderMovement(models.Model):
