@@ -83,7 +83,18 @@
             <li><a class="dropdown-item" href="{% url 'documents:belge_formu' %}">İhale Dosyası Oluşturucu</a></li>
           </ul>
         </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Üretim Yönetimi
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'printing:printing_order_list' %}">Baskı</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">-------</a></li>
+          </ul>
+        </li>
     </ul>
+    
     {% endif %}
       <!-- Sağ taraf (ms-auto = sola boşluk bırak, sağa yasla) -->
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center gap-2">

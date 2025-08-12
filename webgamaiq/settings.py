@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'proforma',
     'documents',
     'quality',
+    'printing',
 ]
 
 AUTH_USER_MODEL = 'user.MyUserModel'

@@ -1,0 +1,18 @@
+
+{% extends "layout.html" %}
+{% block body %}
+{% load crispy_forms_tags %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Baskı Siparişleri</h3>
+        <a href="{% url 'printing_order_create' %}">Yeni Sipariş</a>
+    </div>
+    <div class="card-body">
+        <ul>
+            {% for order in orders %}
+                <li><a href="{% url 'printing_order_detail' order.pk %}">{{ order.ref_no }}</a> - {{ order.order_no }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock body %}

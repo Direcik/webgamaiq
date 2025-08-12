@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from orders import views
+from printing import views
 from quality import views
 from proforma import views
 from documents import views
@@ -35,4 +36,5 @@ urlpatterns = [
     path('proforma/', include('proforma.urls')),
     path('documents/', include('documents.urls')),
     path('quality/', include('quality.urls')),
+    path('printing/', include('printing.urls')),
 ]

@@ -1,0 +1,29 @@
+
+{% extends "layout.html" %}
+{% block body %}
+{% load crispy_forms_tags %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Hareketler</h3>
+    </div>
+    <div class="card-body">
+        <h2>{{ order.ref_no }} - {{ order.order_no }}</h2>
+
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Kod" width="150">
+
+        <ul>
+        {% for mov in movements %}
+            <li>{{ mov.date }} - {{ mov.get_movement_type_display }} - {{ mov.weight_kg }} kg ({{ mov.product.name }})</li>
+        {% empty %}
+            <li>Henüz hareket yok.</li>
+        {% endfor %}
+        </ul>
+
+        <h3>Hareket Ekle</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+        </form>
+    </div>
+</div>
+{% endblock body %}
