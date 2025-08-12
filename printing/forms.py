@@ -8,15 +8,16 @@ from inventory.models import Product
 class PrintingOrderForm(forms.ModelForm):
     class Meta:
         model = PrintingOrder
-        fields = ['ref_no', 'paper', 'surface', 'weight', 'date', 'description']
+        fields = ['ref_no', 'paper', 'weight', 'surface', 'date', 'description']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Sadece KAĞIT kategorisindekileri getir
-        self.fields['paper'].queryset = Product.objects.filter(category__name__iexact="KAĞIT")
-        self.helper = FormHelper()
-        self.helper.add_input(Submit('submit', 'Kaydet'))
+        # Kağıt seçiminde sadece category'si "KAĞIT" olan ürünleri getir
+        self.fields['paper'].queryset = Product.objects.filter(category__name__iexact='KAĞIT')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
