@@ -3,10 +3,10 @@
 {% block body %}
 {% load crispy_forms_tags %}
 
-<a href="{% url 'printing_ref_add' %}" class="btn btn-primary mb-3">Yeni Ref Ekle</a>
+<a href="{% url 'printing:printing_ref_add' %}" class="btn btn-primary mb-3">Yeni Ref Ekle</a>
 <div class="card mb-4">
     <div class="card-header">
-        <h2>Baskı Ref Numaraları</h2>
+        <h3>Baskı Ref Numaraları</h3>
     </div>
     <div class="card-body">
         <table class="table table-bordered">
