@@ -13,14 +13,14 @@ import base64
 
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
-    return render(request, 'printing_order_list.html', {'orders': orders})
+    return render(request, 'printing:printing_order_list.html', {'orders': orders})
 
 def printing_order_create(request):
     if request.method == 'POST':
         form = PrintingOrderForm(request.POST)
         if form.is_valid():
             order = form.save()
-            return redirect('printing_order_detail', pk=order.pk)
+            return redirect('printing:printing_order_detail', pk=order.pk)
     else:
         form = PrintingOrderForm()
     return render(request, 'printing_order_form.html', {'form': form})
@@ -35,7 +35,7 @@ def printing_order_detail(request, pk):
             movement = form.save(commit=False)
             movement.order = order
             movement.save()
-            return redirect('printing_order_detail', pk=pk)
+            return redirect('printing:printing_order_detail', pk=pk)
     else:
         form = PrintingOrderMovementForm()
 
@@ -64,7 +64,7 @@ def printing_ref_add(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Baskı ref numarası eklendi.')
-            return redirect('printing_ref_list')
+            return redirect('printing:printing_ref_list')
     else:
         form = PrintingRefForm()
     return render(request, 'printing_ref_form.html', {'form': form})
@@ -76,7 +76,7 @@ def printing_ref_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Baskı ref numarası güncellendi.')
-            return redirect('printing_ref_list')
+            return redirect('printing:printing_ref_list')
     else:
         form = PrintingRefForm(instance=ref)
     return render(request, 'printing_ref_form.html', {'form': form})
@@ -85,4 +85,4 @@ def printing_ref_delete(request, pk):
     ref = get_object_or_404(PrintingRef, pk=pk)
     ref.delete()
     messages.success(request, 'Baskı ref numarası silindi.')
-    return redirect('printing_ref_list')
+    return redirect('printing:printing_ref_list')
