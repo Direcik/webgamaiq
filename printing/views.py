@@ -101,7 +101,7 @@ def add_movement(request, pk, movement_type):
     return render(request, 'printing_add_movement.html', {
         'form': form,
         'title': title,
-        'order_pk': order.pk,
+        'order': order,
     })
 
 def printing_ref_list(request):
