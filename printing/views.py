@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib import messages
 from .models import PrintingOrder, PrintingRef
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
-from datetime import date, timedelta
+
 import qrcode
 from io import BytesIO
 import base64
@@ -11,34 +11,23 @@ import base64
 
 
 
-from datetime import date, timedelta
-from django.shortcuts import render
-from .models import PrintingOrder
-
 def printing_order_list(request):
-    today = date.today()
-    one_month_ago = today - timedelta(days=30)
+    orders = PrintingOrder.objects.all().order_by('-date')
 
-    start_date_str = request.GET.get('start_date')
-    end_date_str = request.GET.get('end_date')
-
-    # Tarihleri güvenli şekilde parse et
-    try:
-        start_date = start_date_str if start_date_str else one_month_ago
-        end_date = end_date_str if end_date_str else today
-    except:
-        start_date = one_month_ago
-        end_date = today
-
-    orders = PrintingOrder.objects.filter(date__range=[start_date, end_date]).order_by('-date')
+    # Tarih filtresi
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date:
+        orders = orders.filter(date__gte=start_date)
+    if end_date:
+        orders = orders.filter(date__lte=end_date)
 
     context = {
         'orders': orders,
-        'start_date': start_date,
-        'end_date': end_date,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
     }
     return render(request, 'printing_order_list.html', context)
-
 
 def printing_order_create(request):
     if request.method == 'POST':
