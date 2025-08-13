@@ -16,11 +16,7 @@ class PrintingOrderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Kağıt seçiminde sadece category'si "KAĞIT" olan ürünleri getir
         self.fields['paper'].queryset = Product.objects.filter(category__name__iexact='KAĞIT')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit('submit', 'Kaydet'))
 
@@ -28,18 +24,29 @@ class PrintingOrderForm(forms.ModelForm):
 class PrintingOrderMovementForm(forms.ModelForm):
     class Meta:
         model = PrintingOrderMovement
-        fields = ['product' , 'weight_kg', 'date']
+        fields = ['product', 'weight_kg']
 
     def __init__(self, *args, **kwargs):
+        movement_type = kwargs.pop('movement_type', None)
+        order = kwargs.pop('order', None)
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit('submit', 'Ekle'))
+        self.helper.add_input(Submit('submit', 'Kaydet'))
+        # Ürün otomatik atama
+        if movement_type == 'final_in' and order:
+            self.fields['product'].queryset = Product.objects.filter(pk=order.paper.pk)
+            self.fields['product'].initial = order.paper
+        elif movement_type == 'semi_in' and order:
+            # Yarı mamul için özel bir seçim, ref_no ile ilişkilendirilecek
+            self.fields['product'].queryset = Product.objects.filter(pk=order.paper.pk)
+            self.fields['product'].initial = order.paper
+
 
 class PrintingRefForm(forms.ModelForm):
     class Meta:
         model = PrintingRef
         fields = ['ref_no', 'kazan_size']
-
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()

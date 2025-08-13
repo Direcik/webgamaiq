@@ -7,26 +7,17 @@ from inventory.models import Product  # mevcut ürün modelin
 class PrintingRef(models.Model):
     ref_no = models.CharField(max_length=50, unique=True, verbose_name="Baskı Ref No")
     kazan_size = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Kazan Ölçüsü (cm)")
-
+    total_semi_kg = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Toplam Yarı Mamul KG")
+    
     def __str__(self):
         return self.ref_no
 
-
 class PrintingOrder(models.Model):
     ref_no = models.ForeignKey(PrintingRef, on_delete=models.PROTECT, verbose_name="Baskı Ref No")
-    order_no = models.CharField(max_length=20, unique=True, editable=False, verbose_name="Sipariş No")
-    paper = models.ForeignKey(
-        Product, 
-        on_delete=models.CASCADE, 
-        limit_choices_to={'category__name__iexact': 'KAĞIT'}, 
-        verbose_name="Kullanılacak Kağıt"
-    )
-    weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam Kg")
-    surface = models.CharField(
-        max_length=10,
-        choices=[('ic', 'İç'), ('dis', 'Dış')],
-        verbose_name="Baskı Yüzeyi"
-    )
+    order_no = models.CharField(max_length=20, unique=True, editable=False)
+    paper = models.ForeignKey(Product, on_delete=models.CASCADE, limit_choices_to={'category__name__iexact': 'KAĞIT'}, verbose_name="Kullanılacak Kağıt")
+    weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam KG")
+    surface = models.CharField(max_length=10, choices=[('ic', 'İç'), ('dis', 'Dış')], verbose_name="Baskı Yüzeyi")
     date = models.DateField(default=timezone.now, verbose_name="Tarih")
     description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
 
@@ -35,19 +26,18 @@ class PrintingOrder(models.Model):
             self.order_no = f"ORD-{uuid.uuid4().hex[:6].upper()}"
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.ref.ref_no} ({self.order_no})"
-
     @property
     def status(self):
-        # Sipariş durumu
+        semi_total = self.movements.filter(movement_type='semi_in').aggregate(total=models.Sum('weight_kg'))['total'] or 0
         if not self.movements.exists():
-            return "Sipariş Oluşturuldu"
-        semi_total = sum([s.weight_kg for s in self.semi_stock.all()])
-        if semi_total >= self.weight:
+            return "Oluşturuldu"
+        elif semi_total >= self.weight:
             return "Tamamlandı"
-        return "Üretimde"
+        else:
+            return "Üretimde"
 
+    def __str__(self):
+        return f"{self.ref_no.ref_no} ({self.order_no})"
 
 class PrintingOrderMovement(models.Model):
     MOVEMENT_TYPES = [
@@ -61,9 +51,16 @@ class PrintingOrderMovement(models.Model):
     weight_kg = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        # Yarı mamul girişinde ref toplamını güncelle
+        if is_new and self.movement_type == 'semi_in':
+            self.order.ref_no.total_semi_kg += self.weight_kg
+            self.order.ref_no.save()
+
     def __str__(self):
         return f"{self.get_movement_type_display()} - {self.product.name} ({self.weight_kg} kg)"
-
 
 class SemiFinishedStock(models.Model):
     order = models.ForeignKey(PrintingOrder, on_delete=models.CASCADE, related_name='semi_stock')

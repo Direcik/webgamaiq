@@ -4,12 +4,8 @@
 <h2>Baskı Sipariş Numarası: {{ order.order_no }}</h2>
 
 <div class="mb-3">
-    <a href="{% url 'printing:add_final_in' order.pk %}" class="btn btn-success">
-        Mamul Ekle
-    </a>
-    <a href="{% url 'printing:add_semi_in' order.pk %}" class="btn btn-primary">
-        Yarı Mamul Ekle
-    </a>
+    <a href="{% url 'printing:add_movement' order.pk 'final_in' %}" class="btn btn-primary">Mamul Ekle</a>
+    <a href="{% url 'printing:add_movement' order.pk 'semi_in' %}" class="btn btn-primary">Yarı Mamul Ekle</a>
 </div>
 
 <div class="card">
