@@ -9,39 +9,11 @@ from io import BytesIO
 import base64
 
 
-
-
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
 
-    # Bugün ve 1 ay öncesi
-    today = date.today()
-    one_month_ago = today - timedelta(days=30)
-
-    start_date_str = request.GET.get('start_date')
-    end_date_str = request.GET.get('end_date')
-
-    # Tarihleri datetime.date objesine çevir
-    start_date = one_month_ago
-    end_date = today
-    date_format = "%Y-%m-%d"
-
-    try:
-        if start_date_str:
-            start_date = datetime.strptime(start_date_str, date_format).date()
-        if end_date_str:
-            end_date = datetime.strptime(end_date_str, date_format).date()
-    except ValueError:
-        # Hatalı tarih gelirse default olarak son 1 ay kullan
-        start_date = one_month_ago
-        end_date = today
-
-    orders = orders.filter(date__range=[start_date, end_date])
-
     context = {
         'orders': orders,
-        'start_date': start_date.strftime(date_format),
-        'end_date': end_date.strftime(date_format),
     }
     return render(request, 'printing_order_list.html', context)
 
