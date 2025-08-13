@@ -4,6 +4,7 @@ from django.db.models import Sum
 from .models import PrintingOrder, PrintingRef, PrintingOrderMovement
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
 from datetime import datetime, timedelta, date
+from django import forms
 
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
@@ -91,7 +92,7 @@ def add_movement(request, pk, movement_type):
             form.fields['product'].initial = order.paper
         elif movement_type == 'semi_in':
             form.fields['product'].initial = order.ref_no
-            form.fields['product'].widget = PrintingOrderForm.HiddenInput()  # kullanıcı göremez
+            form.fields['product'].widget = forms.HiddenInput()
 
     title = "Mamul Ekle" if movement_type == 'final_in' else "Yarı Mamul Ekle"
 
