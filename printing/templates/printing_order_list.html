@@ -9,12 +9,6 @@
         </a>
     </div>
     <div class="col-md-4">
-        <form method="get" class="d-flex">
-            <input type="date" name="start_date" value="{{ start_date }}" class="form-control me-2">
-            <input type="date" name="end_date" value="{{ end_date }}" class="form-control me-2">
-            <button type="submit" class="btn btn-primary me-2">Filtrele</button>
-            <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary">Temizle</a>
-        </form>
     </div>
     <div class="col-md-4">
         <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-100">
@@ -22,7 +16,19 @@
         </a>
     </div>
 </div>
-
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Tarih Filtresi</h2>
+    </div>
+    <div class="card-body">
+        <form method="get" class="d-flex">
+            <input type="date" name="start_date" value="{{ start_date }}" class="form-control me-2">
+            <input type="date" name="end_date" value="{{ end_date }}" class="form-control me-2">
+            <button type="submit" class="btn btn-primary me-2">Filtrele</button>
+            <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary">Temizle</a>
+        </form>
+    </div>
+</div>
 <div class="card mb-4">
     <div class="card-header">
         <h2>Baskı Siparişleri</h2>
@@ -46,7 +52,15 @@
                     <td>{{ order.ref_no.ref_no }}</td>
                     <td>{{ order.weight }}</td>
                     <td>{{ order.date }}</td>
-                    <td>{{ status }}</td>
+                    <td>
+                        {% if status == "Tamamlandı" %}
+                            <span class="badge bg-success">{{ status }}</span>
+                        {% elif status == "Üretimde" %}
+                            <span class="badge bg-primary">{{ status }}</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ status }}</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-outline-primary btn-sm">
                             🔍 Detay
