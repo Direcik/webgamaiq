@@ -14,32 +14,36 @@ import base64
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
 
-    # Tarih filtresi için default değerler: son 1 ay
     today = date.today()
     one_month_ago = today - timedelta(days=30)
 
-    start_date = request.GET.get('start_date', one_month_ago)
-    end_date = request.GET.get('end_date', today)
+    # GET parametrelerinden string tarihleri al
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
 
-    # Filtreleme (GET parametreleri varsa uygula)
-    if start_date:
+    # Varsayılan değerler
+    start_date = one_month_ago
+    end_date = today
+
+    # Eğer GET parametresi varsa date objesine çevir
+    if start_date_str:
         try:
-            start_date_obj = date.fromisoformat(str(start_date))
-            orders = orders.filter(date__gte=start_date_obj)
+            start_date = date.fromisoformat(start_date_str)
         except ValueError:
             pass
 
-    if end_date:
+    if end_date_str:
         try:
-            end_date_obj = date.fromisoformat(str(end_date))
-            orders = orders.filter(date__lte=end_date_obj)
+            end_date = date.fromisoformat(end_date_str)
         except ValueError:
             pass
+
+    orders = orders.filter(date__range=[start_date, end_date])
 
     context = {
         'orders': orders,
-        'start_date': start_date,
-        'end_date': end_date,
+        'start_date': start_date.isoformat(),
+        'end_date': end_date.isoformat(),
     }
     return render(request, 'printing_order_list.html', context)
 
