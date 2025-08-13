@@ -68,11 +68,17 @@ def printing_order_create(request):
 def printing_order_detail(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
     movements = order.movements.all().order_by('-date')
+
+    # Toplam KG hesaplama
+    total_final = movements.filter(movement_type='final_in').aggregate(total=Sum('weight_kg'))['total'] or 0
+    total_semi = movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
+
     return render(request, 'printing_order_detail.html', {
         'order': order,
         'movements': movements,
+        'total_final': total_final,
+        'total_semi': total_semi,
     })
-
 
 # ---------------------------
 # HAREKET EKLEME

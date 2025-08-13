@@ -1,14 +1,20 @@
 {% extends "layout.html" %}
+{% load crispy_forms_tags %}
+
 {% block body %}
 
 <h2>Baskı Sipariş Numarası: {{ order.order_no }}</h2>
 
-<div class="mb-3">
-    <a href="{% url 'printing:add_movement' order.pk 'final_in' %}" class="btn btn-primary">Mamul Ekle</a>
-    <a href="{% url 'printing:add_movement' order.pk 'semi_in' %}" class="btn btn-primary">Yarı Mamul Ekle</a>
+<div class="mb-3 d-flex gap-2">
+    <a href="{% url 'printing:add_movement' order.pk 'final_in' %}" class="btn btn-success">
+        🌀 Mamul Ekle
+    </a>
+    <a href="{% url 'printing:add_movement' order.pk 'semi_in' %}" class="btn btn-warning">
+        📝 Yarı Mamul Ekle
+    </a>
 </div>
 
-<div class="card">
+<div class="card mt-3">
     <div class="card-header">
         <h3>Hareketler</h3>
     </div>
@@ -27,7 +33,13 @@
                 <tr>
                     <td>{{ mov.date }}</td>
                     <td>{{ mov.get_movement_type_display }}</td>
-                    <td>{{ mov.product.name }}</td>
+                    <td>
+                        {% if mov.movement_type == 'final_in' %}
+                            {{ mov.product.name }}
+                        {% else %}
+                            {{ mov.order.ref_no.ref_no }}
+                        {% endif %}
+                    </td>
                     <td>{{ mov.weight_kg }}</td>
                 </tr>
                 {% empty %}
@@ -35,6 +47,15 @@
                     <td colspan="4">Henüz hareket yok.</td>
                 </tr>
                 {% endfor %}
+                <!-- Toplam satırı -->
+                <tr>
+                    <td colspan="3"><strong>Toplam Mamül KG</strong></td>
+                    <td>{{ total_final }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3"><strong>Toplam Yarı Mamül KG</strong></td>
+                    <td>{{ total_semi }}</td>
+                </tr>
             </tbody>
         </table>
     </div>
