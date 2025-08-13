@@ -27,11 +27,11 @@
             <div class="col-md-3">
                 <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date|default:today }}">
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100">Filtrele</button>
             </div>
-            <div class="col-md-2">
-                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary w-100">Temizle</a>
+            <div class="col-md-3">
+                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-outline-secondary w-100">Temizle</a>
             </div>
         </form>
 
