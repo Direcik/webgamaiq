@@ -69,7 +69,7 @@ def printing_order_detail(request, pk):
 
 def add_movement(request, pk, movement_type):
     order = get_object_or_404(PrintingOrder, pk=pk)
-    
+
     if request.method == 'POST':
         form = PrintingOrderMovementForm(request.POST)
         if form.is_valid():
@@ -78,24 +78,23 @@ def add_movement(request, pk, movement_type):
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                movement.product = order.paper  # inventory.product otomatik
+                movement.product = order.paper
             elif movement_type == 'semi_in':
-                movement.product = order.ref_no  # PrintingRef otomatik
-                order.ref_no.total_semi_kg += movement.weight_kg  # toplam KG güncelle
-                order.ref_no.save()
+                movement.semi_ref = order.ref_no
 
             movement.save()
+
+            # Yarı mamul toplamını güncelle
+            if movement_type == 'semi_in':
+                total_semi = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
+                order.ref_no.total_semi_kg = total_semi
+                order.ref_no.save()
+
             return redirect('printing:printing_order_detail', pk=order.pk)
     else:
         form = PrintingOrderMovementForm()
-        if movement_type == 'final_in':
-            form.fields['product'].initial = order.paper
-        elif movement_type == 'semi_in':
-            form.fields['product'].initial = order.ref_no
-            form.fields['product'].widget = forms.HiddenInput()
 
     title = "Mamul Ekle" if movement_type == 'final_in' else "Yarı Mamul Ekle"
-
     return render(request, 'printing_add_movement.html', {
         'form': form,
         'title': title,

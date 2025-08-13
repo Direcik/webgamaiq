@@ -41,26 +41,22 @@ class PrintingOrder(models.Model):
 
 class PrintingOrderMovement(models.Model):
     MOVEMENT_TYPES = [
-        ('semi_in', 'Yarı Mamul Girişi'),
         ('final_in', 'Mamül Girişi'),
+        ('semi_in', 'Yarı Mamul Girişi'),
     ]
 
     order = models.ForeignKey(PrintingOrder, on_delete=models.CASCADE, related_name='movements')
     movement_type = models.CharField(max_length=20, choices=MOVEMENT_TYPES)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)  # Mamul için
+    semi_ref = models.ForeignKey(PrintingRef, on_delete=models.CASCADE, null=True, blank=True)  # Yarı mamul için
     weight_kg = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
 
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        super().save(*args, **kwargs)
-        # Yarı mamul girişinde ref toplamını güncelle
-        if is_new and self.movement_type == 'semi_in':
-            self.order.ref_no.total_semi_kg += self.weight_kg
-            self.order.ref_no.save()
-
     def __str__(self):
-        return f"{self.get_movement_type_display()} - {self.product.name} ({self.weight_kg} kg)"
+        if self.movement_type == 'final_in':
+            return f"{self.get_movement_type_display()} - {self.product.name} ({self.weight_kg} kg)"
+        else:
+            return f"{self.get_movement_type_display()} - {self.semi_ref.ref_no} ({self.weight_kg} kg)"
 
 class SemiFinishedStock(models.Model):
     order = models.ForeignKey(PrintingOrder, on_delete=models.CASCADE, related_name='semi_stock')
