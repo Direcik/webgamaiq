@@ -28,7 +28,7 @@ class PrintingOrderForm(forms.ModelForm):
 class PrintingOrderMovementForm(forms.ModelForm):
     class Meta:
         model = PrintingOrderMovement
-        fields = ['movement_type', 'product' , 'weight_kg', 'date']
+        fields = ['product' , 'weight_kg', 'date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
