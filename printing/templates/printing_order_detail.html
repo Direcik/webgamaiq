@@ -35,7 +35,7 @@
                     <td>{{ mov.get_movement_type_display }}</td>
                     <td>
                         {% if mov.movement_type == 'final_in' %}
-                            {{ mov.product.name }}
+                            {{ mov.order.paper.name }}
                         {% else %}
                             {{ mov.order.ref_no.ref_no }}
                         {% endif %}
