@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib import messages
 from .models import PrintingOrder, PrintingRef
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
-
+from datetime import date, timedelta
 import qrcode
 from io import BytesIO
 import base64
@@ -14,18 +14,32 @@ import base64
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
 
-    # Tarih filtresi
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
+    # Tarih filtresi için default değerler: son 1 ay
+    today = date.today()
+    one_month_ago = today - timedelta(days=30)
+
+    start_date = request.GET.get('start_date', one_month_ago)
+    end_date = request.GET.get('end_date', today)
+
+    # Filtreleme (GET parametreleri varsa uygula)
     if start_date:
-        orders = orders.filter(date__gte=start_date)
+        try:
+            start_date_obj = date.fromisoformat(str(start_date))
+            orders = orders.filter(date__gte=start_date_obj)
+        except ValueError:
+            pass
+
     if end_date:
-        orders = orders.filter(date__lte=end_date)
+        try:
+            end_date_obj = date.fromisoformat(str(end_date))
+            orders = orders.filter(date__lte=end_date_obj)
+        except ValueError:
+            pass
 
     context = {
         'orders': orders,
-        'start_date': start_date or '',
-        'end_date': end_date or '',
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'printing_order_list.html', context)
 
