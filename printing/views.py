@@ -10,10 +10,18 @@ import base64
 
 
 def printing_order_list(request):
-    orders = PrintingOrder.objects.all().order_by('-date')
+    today = date.today()
+    one_month_ago = today - timedelta(days=30)
+
+    start_date = request.GET.get('start_date', one_month_ago)
+    end_date = request.GET.get('end_date', today)
+
+    orders = PrintingOrder.objects.filter(date__range=[start_date, end_date]).order_by('-date')
 
     context = {
         'orders': orders,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'printing_order_list.html', context)
 
