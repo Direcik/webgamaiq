@@ -5,17 +5,20 @@
 <div class="card mb-4">
     <div class="card-header">
         <h2>Menü</h2>
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success btn-sm w-100">
-                    📝 Yeni Sipariş
-                </a>
-            </div>
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-100">
-                    📄 Baskı Ref No Listesi
-                </a>
+    </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success btn-sm w-125">
+                        📝 Yeni Sipariş
+                    </a>
+                </div>
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-125">
+                        📄 Baskı Ref No Listesi
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -26,13 +29,13 @@
         <h2>Baskı Siparişleri</h2>
     </div>
     <div class="card-body">
-
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
                     <th>Sipariş No</th>
                     <th>Ref No</th>
                     <th>Toplam KG</th>
+                    <th>Tarih</th>
                     <th>Detay</th>
                 </tr>
             </thead>
@@ -42,8 +45,9 @@
                     <td>{{ order.order_no }}</td>
                     <td>{{ order.ref_no.ref_no }}</td>
                     <td>{{ order.weight }}</td>
+                    <td>{{ order.date }}</td>
                     <td>
-                        <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-outline-info btn-sm">
+                        <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-outline-primary btn-sm">
                             🔍 Detay
                         </a>
                     </td>
