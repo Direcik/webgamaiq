@@ -20,25 +20,12 @@
         </div>
     </div>
 </div>
+
 <div class="card mb-4">
     <div class="card-header">
         <h2>Baskı Siparişleri</h2>
     </div>
     <div class="card-body">
-        <form method="get" class="row g-2 mb-3">
-            <div class="col-md-3">
-                <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date|default:one_month_ago }}">
-            </div>
-            <div class="col-md-3">
-                <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date|default:today }}">
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-outline-primary w-100">Filtrele</button>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-outline-secondary w-100">Temizle</a>
-            </div>
-        </form>
 
         <table class="table table-bordered table-hover">
             <thead>
