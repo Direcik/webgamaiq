@@ -1,14 +1,13 @@
 from django.db import models
 from django.utils import timezone
-from django.urls import reverse
+from inventory.models import Product
 import uuid
-from inventory.models import Product  # mevcut ürün modelin
 
 class PrintingRef(models.Model):
     ref_no = models.CharField(max_length=50, unique=True, verbose_name="Baskı Ref No")
     kazan_size = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Kazan Ölçüsü (cm)")
     total_semi_kg = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Toplam Yarı Mamul KG")
-    
+
     def __str__(self):
         return self.ref_no
 
@@ -51,6 +50,14 @@ class PrintingOrderMovement(models.Model):
     semi_ref = models.ForeignKey(PrintingRef, on_delete=models.CASCADE, null=True, blank=True)  # Yarı mamul için
     weight_kg = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Yarı mamul ekleme durumunda PrintingRef.total_semi_kg güncelle
+        if self.movement_type == 'semi_in' and self.semi_ref:
+            total_semi = self.order.movements.filter(movement_type='semi_in', semi_ref=self.semi_ref).aggregate(models.Sum('weight_kg'))['weight_kg__sum'] or 0
+            self.semi_ref.total_semi_kg = total_semi
+            self.semi_ref.save()
 
     def __str__(self):
         if self.movement_type == 'final_in':

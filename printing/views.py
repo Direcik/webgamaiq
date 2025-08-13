@@ -4,12 +4,13 @@ from django.db.models import Sum
 from .models import PrintingOrder, PrintingRef, PrintingOrderMovement
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
 from datetime import datetime, timedelta, date
-from django import forms
 
+# ---------------------------
+# LISTELEME & FİLTRELEME
+# ---------------------------
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
 
-    # Tarih filtresi (isteğe bağlı)
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
     today = date.today()
@@ -27,7 +28,7 @@ def printing_order_list(request):
 
     orders = orders.filter(date__range=[start_date, end_date])
 
-    # Sipariş durumu hesaplama
+    # Sipariş durumu
     orders_with_status = []
     for order in orders:
         semi_in_total = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
@@ -47,6 +48,9 @@ def printing_order_list(request):
     return render(request, 'printing_order_list.html', context)
 
 
+# ---------------------------
+# SİPARİŞ OLUŞTUR
+# ---------------------------
 def printing_order_create(request):
     if request.method == 'POST':
         form = PrintingOrderForm(request.POST)
@@ -58,6 +62,9 @@ def printing_order_create(request):
     return render(request, 'printing_order_form.html', {'form': form})
 
 
+# ---------------------------
+# SİPARİŞ DETAY & HAREKETLER
+# ---------------------------
 def printing_order_detail(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
     movements = order.movements.all().order_by('-date')
@@ -67,23 +74,27 @@ def printing_order_detail(request, pk):
     })
 
 
+# ---------------------------
+# HAREKET EKLEME
+# ---------------------------
 def add_movement(request, pk, movement_type):
     order = get_object_or_404(PrintingOrder, pk=pk)
 
     if request.method == 'POST':
-        form = PrintingOrderMovementForm(request.POST)
+        form = PrintingOrderMovementForm(request.POST, movement_type=movement_type, order=order)
         if form.is_valid():
             movement = form.save(commit=False)
             movement.order = order
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                movement.product = order.paper  # Kağıt otomatik
+                movement.product = order.paper  # Mamul: kağıt otomatik
             elif movement_type == 'semi_in':
-                # Yarı mamul: product alanı dummy Product veya aynı kağıt
-                movement.product = order.paper
+                movement.product = order.paper  # Yarı mamul için dummy product
+                movement.semi_ref = order.ref_no  # Yarı mamul PrintingRef ile ilişkilendir
                 movement.save()
-                # PrintingRef toplam yarı mamul kg güncelle
+
+                # PrintingRef toplam yarı mamul KG güncelle
                 total_semi = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
                 order.ref_no.total_semi_kg = total_semi
                 order.ref_no.save()
@@ -92,7 +103,7 @@ def add_movement(request, pk, movement_type):
             movement.save()
             return redirect('printing:printing_order_detail', pk=order.pk)
     else:
-        form = PrintingOrderMovementForm()
+        form = PrintingOrderMovementForm(movement_type=movement_type, order=order)
         if movement_type == 'final_in':
             form.fields['product'].initial = order.paper
 
@@ -104,6 +115,10 @@ def add_movement(request, pk, movement_type):
         'order': order,
     })
 
+
+# ---------------------------
+# BASKI REF
+# ---------------------------
 def printing_ref_list(request):
     refs = PrintingRef.objects.all()
     return render(request, 'printing_ref_list.html', {'refs': refs})
