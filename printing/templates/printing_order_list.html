@@ -1,20 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
 {% load crispy_forms_tags %}
-<div class="row mb-3">
-    <div class="col-md-4">
-        <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success btn-sm w-100">
-            📝 Yeni Sipariş
-        </a>
-    </div>
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-100">
-            📄 Baskı Ref No Listesi
-        </a>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Menü</h2>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success btn-sm w-100">
+                    📝 Yeni Sipariş
+                </a>
+            </div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-100">
+                    📄 Baskı Ref No Listesi
+                </a>
+            </div>
+        </div>
     </div>
 </div>
-
 <div class="card mb-4">
     <div class="card-header">
         <h2>Baskı Siparişleri</h2>
