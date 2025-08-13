@@ -13,15 +13,28 @@ def printing_order_list(request):
     today = date.today()
     one_month_ago = today - timedelta(days=30)
 
-    start_date = request.GET.get('start_date', one_month_ago)
-    end_date = request.GET.get('end_date', today)
+    # GET parametrelerini al
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
 
+    # Stringleri date objesine çevir, hata varsa varsayılan ata
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else one_month_ago
+    except ValueError:
+        start_date = one_month_ago
+
+    try:
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else today
+    except ValueError:
+        end_date = today
+
+    # Tarih aralığına göre filtrele
     orders = PrintingOrder.objects.filter(date__range=[start_date, end_date]).order_by('-date')
 
     context = {
         'orders': orders,
-        'start_date': start_date,
-        'end_date': end_date,
+        'start_date': start_date.strftime('%Y-%m-%d'),  # input type=date ile uyumlu string
+        'end_date': end_date.strftime('%Y-%m-%d'),
     }
     return render(request, 'printing_order_list.html', context)
 
