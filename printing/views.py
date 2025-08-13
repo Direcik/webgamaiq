@@ -64,31 +64,29 @@ def printing_order_create(request):
 def printing_order_detail(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
     movements = order.movements.all().order_by('-date')
+    movement_type = request.GET.get('type')
 
     if request.method == 'POST':
         form = PrintingOrderMovementForm(request.POST)
         if form.is_valid():
             movement = form.save(commit=False)
             movement.order = order
+            # Eğer mamul ekleme ise ürün otomatik olarak order.paper olacak
+            if movement_type == 'final_in':
+                movement.product = order.paper
+            movement.movement_type = movement_type
             movement.save()
             return redirect('printing:printing_order_detail', pk=pk)
     else:
         form = PrintingOrderMovementForm()
-
-    # QR kod dinamik oluşturma
-    url = request.build_absolute_uri(reverse('printing:printing_order_detail', args=[order.pk]))
-    qr = qrcode.make(url)
-    buffer = BytesIO()
-    qr.save(buffer)
-    qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
+        if movement_type == 'final_in':
+            form.fields['product'].initial = order.paper
 
     return render(request, 'printing_order_detail.html', {
         'order': order,
         'movements': movements,
         'form': form,
-        'qr_code': qr_code_base64,
     })
-
 
 def printing_ref_list(request):
     refs = PrintingRef.objects.all()
