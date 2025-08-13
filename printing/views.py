@@ -99,14 +99,16 @@ def add_final_in(request, pk):
             movement.movement_type = 'final_in'
             movement.product = order.paper  # Kullanılan kağıt otomatik
             movement.save()
-            return redirect('printing:printing_order_detail', pk=pk)
+            return redirect('printing:printing_order_detail', pk=order.pk)
     else:
-        form = PrintingOrderMovementForm()
-        form.fields['product'].initial = order.paper
-        form.fields['date'].initial = order.date
+        form = PrintingOrderMovementForm(initial={
+            'product': order.paper,
+            'date': order.date,
+        })
     return render(request, 'printing_add_movement.html', {
         'form': form,
         'title': 'Mamul Ekle',
+        'order_pk': order.pk,  # template için ekliyoruz
     })
 
 
@@ -119,16 +121,16 @@ def add_semi_in(request, pk):
             movement.order = order
             movement.movement_type = 'semi_in'
             movement.save()
-            return redirect('printing:printing_order_detail', pk=pk)
+            return redirect('printing:printing_order_detail', pk=order.pk)
     else:
-        form = PrintingOrderMovementForm()
-        form.fields['order'].initial = order
-        form.fields['date'].initial = order.date
+        form = PrintingOrderMovementForm(initial={
+            'date': order.date,
+        })
     return render(request, 'printing_add_movement.html', {
         'form': form,
         'title': 'Yarı Mamul Ekle',
+        'order_pk': order.pk,  # template için ekliyoruz
     })
-
 
 
 def printing_ref_list(request):

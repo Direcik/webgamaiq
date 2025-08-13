@@ -11,7 +11,7 @@
             {% csrf_token %}
             {{ form|crispy }}
             <button type="submit" class="btn btn-success">Kaydet</button>
-            <a href="{% url 'printing:printing_order_detail' form.instance.order.pk %}" class="btn btn-secondary">İptal</a>
+            <a href="{% url 'printing:printing_order_detail' order_pk %}" class="btn btn-secondary">İptal</a>
         </form>
     </div>
 </div>
