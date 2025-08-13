@@ -1,22 +1,47 @@
-
 {% extends "layout.html" %}
 {% block body %}
-{% load crispy_forms_tags %}
-<div class="card mb-4">
+
+<h2>Baskı Sipariş Numarası: {{ order.order_no }}</h2>
+
+<div class="mb-3">
+    <a href="{% url 'printing:add_final_in' order.pk %}" class="btn btn-success">
+        Mamul Ekle
+    </a>
+    <a href="{% url 'printing:add_semi_in' order.pk %}" class="btn btn-primary">
+        Yarı Mamul Ekle
+    </a>
+</div>
+
+<div class="card">
     <div class="card-header">
         <h3>Hareketler</h3>
     </div>
     <div class="card-body">
-        <div class="mb-3">
-            <a href="?type=semi_in" class="btn btn-primary">Yarı Mamul Ekle</a>
-            <a href="?type=final_in" class="btn btn-success">Mamul Ekle</a>
-        </div>
-        
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-info">Ekle</button>
-        </form>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Tip</th>
+                    <th>Ürün</th>
+                    <th>KG</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in movements %}
+                <tr>
+                    <td>{{ mov.date }}</td>
+                    <td>{{ mov.get_movement_type_display }}</td>
+                    <td>{{ mov.product.name }}</td>
+                    <td>{{ mov.weight_kg }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Henüz hareket yok.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
 {% endblock body %}
