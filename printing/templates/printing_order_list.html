@@ -1,45 +1,46 @@
 {% extends "layout.html" %}
 {% block body %}
 {% load crispy_forms_tags %}
-
 <div class="row mb-3">
     <div class="col-md-4">
         <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success btn-sm w-100">
-            Yeni Sipariş
+            📝 Yeni Sipariş
         </a>
     </div>
     <div class="col-md-4"></div>
     <div class="col-md-4">
         <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-100">
-            Baskı Ref No Listesi
+            📄 Baskı Ref No Listesi
         </a>
     </div>
 </div>
-
-<!-- Tarih filtresi -->
-<form method="get" class="mb-3 row g-2">
-    <div class="col-md-3">
-        <input type="date" name="start_date" value="{{ start_date }}" class="form-control" placeholder="Başlangıç Tarihi">
-    </div>
-    <div class="col-md-3">
-        <input type="date" name="end_date" value="{{ end_date }}" class="form-control" placeholder="Bitiş Tarihi">
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Filtrele</button>
-    </div>
-</form>
 
 <div class="card mb-4">
     <div class="card-header">
         <h2>Baskı Siparişleri</h2>
     </div>
     <div class="card-body">
-        <table class="table table-striped">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-3">
+                <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date|default:one_month_ago }}">
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date|default:today }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary w-100">Temizle</a>
+            </div>
+        </form>
+
+        <table class="table table-bordered table-hover">
             <thead>
                 <tr>
                     <th>Sipariş No</th>
                     <th>Ref No</th>
-                    <th>Toplam Kg</th>
+                    <th>Toplam KG</th>
                     <th>Detay</th>
                 </tr>
             </thead>
@@ -50,8 +51,8 @@
                     <td>{{ order.ref_no.ref_no }}</td>
                     <td>{{ order.weight }}</td>
                     <td>
-                        <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-sm btn-info">
-                            Detay
+                        <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-outline-info btn-sm">
+                            🔍 Detay
                         </a>
                     </td>
                 </tr>
@@ -64,5 +65,4 @@
         </table>
     </div>
 </div>
-
 {% endblock body %}
