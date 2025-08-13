@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.db.models import Sum
 from django.contrib import messages
 from .models import PrintingOrder, PrintingRef
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
@@ -10,14 +11,15 @@ import base64
 
 
 def printing_order_list(request):
-    today = date.today()
-    one_month_ago = today - timedelta(days=30)
+    orders = PrintingOrder.objects.all().order_by('-date')
 
-    # GET parametrelerini al
+    # Tarih filtresi (güvenli şekilde)
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
 
-    # Stringleri date objesine çevir, hata varsa varsayılan ata
+    today = date.today()
+    one_month_ago = today - timedelta(days=30)
+
     try:
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else one_month_ago
     except ValueError:
@@ -28,12 +30,23 @@ def printing_order_list(request):
     except ValueError:
         end_date = today
 
-    # Tarih aralığına göre filtrele
-    orders = PrintingOrder.objects.filter(date__range=[start_date, end_date]).order_by('-date')
+    orders = orders.filter(date__range=[start_date, end_date])
+
+    # Sipariş durumu hesaplama
+    orders_with_status = []
+    for order in orders:
+        semi_in_total = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
+        if order.movements.count() == 0:
+            status = "Sipariş Oluşturuldu"
+        elif semi_in_total >= order.weight:
+            status = "Tamamlandı"
+        else:
+            status = "Üretimde"
+        orders_with_status.append((order, status))
 
     context = {
-        'orders': orders,
-        'start_date': start_date.strftime('%Y-%m-%d'),  # input type=date ile uyumlu string
+        'orders_with_status': orders_with_status,
+        'start_date': start_date.strftime('%Y-%m-%d'),
         'end_date': end_date.strftime('%Y-%m-%d'),
     }
     return render(request, 'printing_order_list.html', context)

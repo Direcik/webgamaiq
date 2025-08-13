@@ -40,21 +40,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
+                {% for order, status in orders_with_status %}
                 <tr>
                     <td>{{ order.order_no }}</td>
                     <td>{{ order.ref_no.ref_no }}</td>
                     <td>{{ order.weight }}</td>
                     <td>{{ order.date }}</td>
-                    <td>
-                        {% if order.movements.count == 0 %}
-                            Sipariş Oluşturuldu
-                        {% elif order.movements.filter(movement_type='semi_in').aggregate(total=models.Sum('weight_kg'))|default:0 >= order.weight %}
-                            Tamamlandı
-                        {% else %}
-                            Üretimde
-                        {% endif %}
-                    </td>
+                    <td>{{ status }}</td>
                     <td>
                         <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-outline-primary btn-sm">
                             🔍 Detay
