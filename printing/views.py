@@ -78,27 +78,30 @@ def add_movement(request, pk, movement_type):
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                movement.product = order.paper
+                movement.product = order.paper  # Kağıt otomatik
             elif movement_type == 'semi_in':
-                movement.semi_ref = order.ref_no
-
-            movement.save()
-
-            # Yarı mamul toplamını güncelle
-            if movement_type == 'semi_in':
+                # Yarı mamul: product alanı dummy Product veya aynı kağıt
+                movement.product = order.paper
+                movement.save()
+                # PrintingRef toplam yarı mamul kg güncelle
                 total_semi = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
                 order.ref_no.total_semi_kg = total_semi
                 order.ref_no.save()
+                return redirect('printing:printing_order_detail', pk=order.pk)
 
+            movement.save()
             return redirect('printing:printing_order_detail', pk=order.pk)
     else:
         form = PrintingOrderMovementForm()
+        if movement_type == 'final_in':
+            form.fields['product'].initial = order.paper
 
     title = "Mamul Ekle" if movement_type == 'final_in' else "Yarı Mamul Ekle"
+
     return render(request, 'printing_add_movement.html', {
         'form': form,
         'title': title,
-        'order': order,
+        'order_pk': order.pk,
     })
 
 def printing_ref_list(request):
