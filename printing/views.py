@@ -80,8 +80,7 @@ def add_movement(request, pk, movement_type):
                 movement.product = order.paper  # inventory.product otomatik
             elif movement_type == 'semi_in':
                 movement.product = order.ref_no  # PrintingRef otomatik
-                # toplam yarı mamul KG güncelle
-                order.ref_no.total_semi_kg += movement.weight_kg
+                order.ref_no.total_semi_kg += movement.weight_kg  # toplam KG güncelle
                 order.ref_no.save()
 
             movement.save()
@@ -92,6 +91,7 @@ def add_movement(request, pk, movement_type):
             form.fields['product'].initial = order.paper
         elif movement_type == 'semi_in':
             form.fields['product'].initial = order.ref_no
+            form.fields['product'].widget = PrintingOrderForm.HiddenInput()  # kullanıcı göremez
 
     title = "Mamul Ekle" if movement_type == 'final_in' else "Yarı Mamul Ekle"
 
