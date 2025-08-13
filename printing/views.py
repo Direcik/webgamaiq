@@ -11,41 +11,34 @@ import base64
 
 
 
-def printing_order_list(request):
-    orders = PrintingOrder.objects.all().order_by('-date')
+from datetime import date, timedelta
+from django.shortcuts import render
+from .models import PrintingOrder
 
+def printing_order_list(request):
     today = date.today()
     one_month_ago = today - timedelta(days=30)
 
-    # GET parametrelerinden string tarihleri al
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
 
-    # Varsayılan değerler
-    start_date = one_month_ago
-    end_date = today
+    # Tarihleri güvenli şekilde parse et
+    try:
+        start_date = start_date_str if start_date_str else one_month_ago
+        end_date = end_date_str if end_date_str else today
+    except:
+        start_date = one_month_ago
+        end_date = today
 
-    # Eğer GET parametresi varsa date objesine çevir
-    if start_date_str:
-        try:
-            start_date = date.fromisoformat(start_date_str)
-        except ValueError:
-            pass
-
-    if end_date_str:
-        try:
-            end_date = date.fromisoformat(end_date_str)
-        except ValueError:
-            pass
-
-    orders = orders.filter(date__range=[start_date, end_date])
+    orders = PrintingOrder.objects.filter(date__range=[start_date, end_date]).order_by('-date')
 
     context = {
         'orders': orders,
-        'start_date': start_date.isoformat(),
-        'end_date': end_date.isoformat(),
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'printing_order_list.html', context)
+
 
 def printing_order_create(request):
     if request.method == 'POST':
