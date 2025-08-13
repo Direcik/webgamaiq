@@ -28,7 +28,7 @@ class PrintingOrderForm(forms.ModelForm):
 class PrintingOrderMovementForm(forms.ModelForm):
     class Meta:
         model = PrintingOrderMovement
-        fields = ['movement_type', 'product', 'batch_no', 'weight_kg', 'date']
+        fields = ['movement_type', 'product' , 'weight_kg', 'date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,3 +45,7 @@ class PrintingRefForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Kaydet'))
+
+class PrintingOrderFilterForm(forms.Form):
+    start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))

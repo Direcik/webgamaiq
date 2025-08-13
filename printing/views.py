@@ -13,7 +13,21 @@ import base64
 
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
-    return render(request, 'printing_order_list.html', {'orders': orders})
+
+    # Tarih filtresi
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date:
+        orders = orders.filter(date__gte=start_date)
+    if end_date:
+        orders = orders.filter(date__lte=end_date)
+
+    context = {
+        'orders': orders,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
+    }
+    return render(request, 'printing_order_list.html', context)
 
 def printing_order_create(request):
     if request.method == 'POST':

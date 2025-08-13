@@ -14,8 +14,13 @@ class PrintingRef(models.Model):
 
 class PrintingOrder(models.Model):
     ref_no = models.ForeignKey(PrintingRef, on_delete=models.PROTECT, verbose_name="Baskı Ref No")
-    order_no = models.CharField(max_length=20, unique=True, editable=False)
-    paper = models.ForeignKey(Product, on_delete=models.CASCADE, limit_choices_to={'category__name__iexact': 'KAĞIT'}, verbose_name="Kullanılacak Kağıt")
+    order_no = models.CharField(max_length=20, unique=True, editable=False, verbose_name="Sipariş No")
+    paper = models.ForeignKey(
+        Product, 
+        on_delete=models.CASCADE, 
+        limit_choices_to={'category__name__iexact': 'KAĞIT'}, 
+        verbose_name="Kullanılacak Kağıt"
+    )
     weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam Kg")
     surface = models.CharField(
         max_length=10,
@@ -33,10 +38,19 @@ class PrintingOrder(models.Model):
     def __str__(self):
         return f"{self.ref.ref_no} ({self.order_no})"
 
+    @property
+    def status(self):
+        # Sipariş durumu
+        if not self.movements.exists():
+            return "Sipariş Oluşturuldu"
+        semi_total = sum([s.weight_kg for s in self.semi_stock.all()])
+        if semi_total >= self.weight:
+            return "Tamamlandı"
+        return "Üretimde"
+
 
 class PrintingOrderMovement(models.Model):
     MOVEMENT_TYPES = [
-        ('raw_out', 'Hammadde Çıkışı'),
         ('semi_in', 'Yarı Mamul Girişi'),
         ('final_in', 'Mamül Girişi'),
     ]
@@ -44,9 +58,18 @@ class PrintingOrderMovement(models.Model):
     order = models.ForeignKey(PrintingOrder, on_delete=models.CASCADE, related_name='movements')
     movement_type = models.CharField(max_length=20, choices=MOVEMENT_TYPES)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    batch_no = models.CharField(max_length=50, verbose_name="Parti No")
     weight_kg = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return f"{self.get_movement_type_display()} - {self.product.name} ({self.weight_kg} kg)"
+
+
+class SemiFinishedStock(models.Model):
+    order = models.ForeignKey(PrintingOrder, on_delete=models.CASCADE, related_name='semi_stock')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    weight_kg = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.weight_kg} kg ({self.order.order_no})"

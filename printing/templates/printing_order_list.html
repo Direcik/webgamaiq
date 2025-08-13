@@ -1,7 +1,7 @@
-
 {% extends "layout.html" %}
 {% block body %}
 {% load crispy_forms_tags %}
+
 <div class="row mb-3">
     <div class="col-md-4">
         <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success btn-sm w-100">
@@ -10,21 +10,59 @@
     </div>
     <div class="col-md-4"></div>
     <div class="col-md-4">
-        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm">
+        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-warning btn-sm w-100">
             Baskı Ref No Listesi
         </a>
     </div>
 </div>
+
+<!-- Tarih filtresi -->
+<form method="get" class="mb-3 row g-2">
+    <div class="col-md-3">
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-control" placeholder="Başlangıç Tarihi">
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-control" placeholder="Bitiş Tarihi">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+    </div>
+</form>
+
 <div class="card mb-4">
     <div class="card-header">
         <h2>Baskı Siparişleri</h2>
     </div>
     <div class="card-body">
-        <ul>
-            {% for order in orders %}
-                <li><a href="{% url 'printing:printing_order_detail' order.pk %}">{{ order.ref_no }}</a> - {{ order.order_no }}</li>
-            {% endfor %}
-        </ul>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sipariş No</th>
+                    <th>Ref No</th>
+                    <th>Toplam Kg</th>
+                    <th>Detay</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_no }}</td>
+                    <td>{{ order.ref_no.ref_no }}</td>
+                    <td>{{ order.weight }}</td>
+                    <td>
+                        <a href="{% url 'printing:printing_order_detail' order.pk %}" class="btn btn-sm btn-info">
+                            Detay
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Henüz sipariş yok.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
 {% endblock body %}
