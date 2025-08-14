@@ -11,12 +11,10 @@
             align-items: center;
             margin-bottom: 20px;
         }
-        .header h2 {
-            margin: 0;
-        }
+        .header h2 { margin: 0; }
         .qr img {
-            width: 80px; /* QR kod boyutu biraz büyütüldü */
-            height: 80px;
+            width: 120px;  /* QR kod biraz daha büyük */
+            height: 120px;
         }
         table {
             width: 100%;
@@ -30,10 +28,7 @@
             padding: 8px 10px;
             text-align: left;
         }
-        th {
-            background-color: #555; /* başlık koyu gri */
-            color: white;
-        }
+        th { background-color: #555; color: white; }
         tbody tr:nth-child(even) { background-color: #f2f2f2; }
         tbody tr:nth-child(odd) { background-color: #ffffff; }
     </style>
@@ -52,7 +47,7 @@
         <tr><th>Sipariş No</th><td>{{ order.order_no }}</td></tr>
         <tr><th>Tarih</th><td>{{ order.date }}</td></tr>
         <tr><th>Toplam KG</th><td>{{ order.weight }}</td></tr>
-        <tr><th>Baskı Yüzeyi</th><td>{{ order.surface }}</td></tr>
+        <tr><th>Baskı Yüzeyi</th><td>{% if order.surface == 'ic' %}İç{% else %}Dış{% endif %}</td></tr>
         <tr><th>Açıklama</th><td>{{ order.description }}</td></tr>
         <tr><th>Kağıt REF / Adı</th><td>{{ order.paper.ref_no }} / {{ order.paper.name_tr }}</td></tr>
     </table>
