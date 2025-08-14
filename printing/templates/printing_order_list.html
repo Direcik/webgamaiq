@@ -55,19 +55,19 @@
                 </tr>
             </thead>
             <tbody>
-                {% for order, status in orders_with_status %}
+                {% for order in orders %}
                 <tr>
                     <td>{{ order.order_no }}</td>
                     <td>{{ order.ref_no.ref_no }}</td>
                     <td>{{ order.weight }}</td>
                     <td>{{ order.date }}</td>
                     <td>
-                        {% if status == "Tamamlandı" %}
-                            <span class="badge bg-success">{{ status }}</span>
-                        {% elif status == "Üretimde" %}
-                            <span class="badge bg-primary">{{ status }}</span>
+                        {% if order.status == "Tamamlandı" %}
+                            <span class="badge bg-success">{{ order.status }}</span>
+                        {% elif order.status == "Üretimde" %}
+                            <span class="badge bg-primary">{{ order.status }}</span>
                         {% else %}
-                            <span class="badge bg-danger">{{ status }}</span>
+                            <span class="badge bg-danger">{{ order.status }}</span>
                         {% endif %}
                     </td>
                     <td>
