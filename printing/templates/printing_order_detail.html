@@ -35,18 +35,18 @@
                 <tbody>
                     {% for mov in movements %}
                     {% if mov.movement_type == 'final_in' %}
-                    <tr>
-                        <td class="bg-success text-white">{{ mov.date }}</td>
-                        <td class="bg-success text-white">{{ mov.get_movement_type_display }}</td>
-                        <td class="bg-success text-white">{{ mov.order.paper }}</td>
-                        <td class="bg-success text-white">{{ mov.weight_kg }}</td>
+                    <tr style="background-color:rgb(62, 161, 85); color: white;">
+                        <td>{{ mov.date }}</td>
+                        <td>{{ mov.get_movement_type_display }}</td>
+                        <td>{{ mov.order.paper }}</td>
+                        <td>{{ mov.weight_kg }}</td>
                     </tr>
                     {% else %}
-                    <tr>
-                        <td class="bg-primary text-white">{{ mov.date }}</td>
-                        <td class="bg-primary text-white">{{ mov.get_movement_type_display }}</td>
-                        <td class="bg-primary text-white">{{ mov.order.ref_no.ref_no }}</td>
-                        <td class="bg-primary text-white">{{ mov.weight_kg }}</td>
+                    <tr style="background-color:rgb(90, 149, 212); color: white;">
+                        <td>{{ mov.date }}</td>
+                        <td>{{ mov.get_movement_type_display }}</td>
+                        <td>{{ mov.order.ref_no.ref_no }}</td>
+                        <td>{{ mov.weight_kg }}</td>
                     </tr>
                     {% endif %}
                     {% empty %}
@@ -55,12 +55,12 @@
                     </tr>
                     {% endfor %}
                     <!-- Toplam satırı -->
-                    <tr>
-                        <td colspan="3"><strong>Toplam Mamül KG</strong></td>
+                    <tr style="font-weight: bold; background-color: #f8f9fa;">
+                        <td colspan="3">Toplam Mamül KG</td>
                         <td>{{ total_final }}</td>
                     </tr>
-                    <tr>
-                        <td colspan="3"><strong>Toplam Yarı Mamül KG</strong></td>
+                    <tr style="font-weight: bold; background-color: #f8f9fa;">
+                        <td colspan="3">Toplam Yarı Mamül KG</td>
                         <td>{{ total_semi }}</td>
                     </tr>
                 </tbody>
