@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <title>Sipariş Formu - {{ order.order_no }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; margin: 30px; }
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 30px; position: relative; }
         .header { text-align: center; margin-bottom: 30px; position: relative; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; }
-        th, td { border: 1px solid #333; padding: 8px 10px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
-        td { background-color: #f9f9f9; }
         .qr {
             position: absolute;
             top: 0;
             right: 0;
+            z-index: 10;
         }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; }
+        th, td { border: 1px solid #333; padding: 8px 10px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tbody tr:nth-child(even) { background-color: #f2f2f2; }
+        tbody tr:nth-child(odd) { background-color: #ffffff; }
     </style>
 </head>
 <body>
