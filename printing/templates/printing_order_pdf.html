@@ -4,31 +4,38 @@
     <meta charset="UTF-8">
     <title>Sipariş Formu - {{ order.order_no }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; margin: 30px; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 15mm 15mm 15mm 15mm; /* A4 için daha küçük girinti */
+            font-weight: bold;
+        }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .header h2 { margin: 0; }
         .qr img {
-            width: 120px;  /* QR kod biraz daha büyük */
+            width: 120px;  /* QR kod boyutu */
             height: 120px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            border-radius: 5px;
-            overflow: hidden;
         }
         th, td {
             border: 1px solid #333;
             padding: 8px 10px;
             text-align: left;
+            font-weight: bold;
         }
-        th { background-color: #555; color: white; }
+        th {
+            background-color: #888;  /* gri ton */
+            color: white;
+        }
         tbody tr:nth-child(even) { background-color: #f2f2f2; }
         tbody tr:nth-child(odd) { background-color: #ffffff; }
     </style>
@@ -43,7 +50,7 @@
 
     <table>
         <tr><th>Ref No</th><td>{{ order.ref_no.ref_no }}</td></tr>
-        <tr><th>Kazan Ölçüsü</th><td>{{ order.ref_no.kazan_size }}</td></tr>
+        <tr><th>Kazan Ölçüsü</th><td>{{ order.ref_no.kazan_size|int }}</td></tr>
         <tr><th>Sipariş No</th><td>{{ order.order_no }}</td></tr>
         <tr><th>Tarih</th><td>{{ order.date }}</td></tr>
         <tr><th>Toplam KG</th><td>{{ order.weight }}</td></tr>
