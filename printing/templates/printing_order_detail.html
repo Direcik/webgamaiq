@@ -73,7 +73,7 @@
             <button type="submit" class="btn btn-outline-success mt-3"  class="btn btn-outline-dark mb-3 d-block w-100 py-2">Siparişi Tamamla</button>
         </form>
         {% endif %}
-        <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2" blank="_target">
+        <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2" target="_blank">
             📄 PDF Oluştur
         </a>
     </div>
