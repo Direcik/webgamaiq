@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sipariş Formu - {{ order.order_no }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 5px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .qr { float: right; margin-top: -80px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Baskı Sipariş Formu</h2>
+    </div>
+
+    <div class="qr">
+        <img src="data:image/png;base64,{{ qr_code|b64encode }}" alt="QR Kod" width="100">
+    </div>
+
+    <table>
+        <tr><th>Ref No</th><td>{{ order.ref_no.ref_no }}</td></tr>
+        <tr><th>Kazan Ölçüsü</th><td>{{ order.ref_no.kazan_size }}</td></tr>
+        <tr><th>Sipariş No</th><td>{{ order.order_no }}</td></tr>
+        <tr><th>Tarih</th><td>{{ order.date }}</td></tr>
+        <tr><th>Toplam KG</th><td>{{ order.weight }}</td></tr>
+        <tr><th>Baskı Yüzeyi</th><td>{{ order.surface }}</td></tr>
+        <tr><th>Açıklama</th><td>{{ order.description }}</td></tr>
+        <tr><th>Kağıt REF / Adı</th><td>{{ order.paper.ref_no }} / {{ order.paper.name_tr }}</td></tr>
+    </table>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% load crispy_forms_tags %}
-
+{% block title %}{{ title }}{% endblock %}
 {% block body %}
 
 <div class="card mt-3">
@@ -66,7 +66,6 @@
                 </tbody>
             </table>
         </div>
-        
 
         {% if order.status == "Üretimde" %}
         <form method="post" action="{% url 'printing:printing_order_complete' order.pk %}">
@@ -77,6 +76,9 @@
         
         <h3>QR Kod:</h3>
         <img src="{{ qr_code }}" alt="QR Kod" class="img-fluid" style="max-width:150px;">
+        <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mt-2">
+            📄 PDF Oluştur
+        </a>
     </div>
 </div>
 

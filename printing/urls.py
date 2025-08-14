@@ -13,4 +13,6 @@ urlpatterns = [
     path('ref/add/', views.printing_ref_add, name='printing_ref_add'),
     path('ref/<int:pk>/edit/', views.printing_ref_edit, name='printing_ref_edit'),
     path('ref/<int:pk>/delete/', views.printing_ref_delete, name='printing_ref_delete'),
+    path('printing/<int:pk>/pdf/', views.printing_order_pdf, name='printing_order_pdf'),
+
 ]
