@@ -29,9 +29,9 @@
     <div class="card-header">
         <h3>Hareketler</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body table-responsive">
         <table class="table table-bordered table-hover">
-            <thead class="table-dark">
+            <thead class="table-light">
                 <tr>
                     <th>Tarih</th>
                     <th>Tip</th>
@@ -41,7 +41,13 @@
             </thead>
             <tbody>
                 {% for mov in movements %}
-                <tr class="{% if mov.movement_type == 'final_in' %}bg-success text-white{% else %}bg-primary text-white{% endif %}">
+                <tr style="
+                    {% if mov.movement_type == 'final_in' %}
+                        background-color: #28a745; color: white;
+                    {% else %}
+                        background-color: #007bff; color: white;
+                    {% endif %}
+                ">
                     <td>{{ mov.date }}</td>
                     <td>{{ mov.get_movement_type_display }}</td>
                     <td>
@@ -55,15 +61,16 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4">Henüz hareket yok.</td>
+                    <td colspan="4" class="text-center">Henüz hareket yok.</td>
                 </tr>
                 {% endfor %}
-                <!-- Toplam satırı -->
-                <tr class="table-secondary">
+
+                <!-- Toplam satırları -->
+                <tr style="background-color: #155724; color: white;">
                     <td colspan="3"><strong>Toplam Mamül KG</strong></td>
                     <td>{{ total_final }}</td>
                 </tr>
-                <tr class="table-secondary">
+                <tr style="background-color: #004085; color: white;">
                     <td colspan="3"><strong>Toplam Yarı Mamül KG</strong></td>
                     <td>{{ total_semi }}</td>
                 </tr>
