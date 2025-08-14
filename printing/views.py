@@ -95,22 +95,19 @@ def add_movement(request, pk, movement_type):
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                # Mamul: Kağıt otomatik
                 movement.product = order.paper
                 movement.save()
 
                 # Mamül stoktan düşme
-                movement_quantity = Decimal(movement.weight_kg)
-                movement.product.stock_quantity = Decimal(movement.product.stock_quantity) - movement_quantity
+                movement.product.stock_quantity -= movement.weight_kg  # Decimal - Decimal
                 movement.product.save()
 
-                # StockMovement kaydı oluştur
                 StockMovement.objects.create(
                     product=movement.product,
                     movement_type='OUT',
-                    quantity=float(movement_quantity),
+                    quantity=float(movement.weight_kg),  # float olarak kaydediyoruz
                     description=f"Mamul üretimi: {order.order_no}"
-                )
+    )
 
             elif movement_type == 'semi_in':
                 # Yarı mamul: PrintingRef ile ilişkilendir
