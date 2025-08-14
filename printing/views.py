@@ -5,7 +5,7 @@ from .models import PrintingOrder, PrintingRef, PrintingOrderMovement
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
 from datetime import datetime, timedelta, date
 from inventory.models import Product, StockMovement
-
+from decimal import Decimal
 # ---------------------------
 # LISTELEME & FİLTRELEME
 # ---------------------------
@@ -95,26 +95,34 @@ def add_movement(request, pk, movement_type):
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                # Mamul ekleme → Product stoktan düşecek
+                # Mamul: Kağıt otomatik
                 movement.product = order.paper
                 movement.save()
+
+                # Mamül stoktan düşme
+                movement_quantity = Decimal(movement.weight_kg)
+                movement.product.stock_quantity = Decimal(movement.product.stock_quantity) - movement_quantity
+                movement.product.save()
 
                 # StockMovement kaydı oluştur
                 StockMovement.objects.create(
                     product=movement.product,
                     movement_type='OUT',
-                    quantity=movement.weight_kg,
+                    quantity=float(movement_quantity),
                     description=f"Mamul üretimi: {order.order_no}"
                 )
 
             elif movement_type == 'semi_in':
-                # Yarı mamul → PrintingRef ile ilişkilendir, Product dummy
-                movement.product = order.paper
+                # Yarı mamul: PrintingRef ile ilişkilendir
+                movement.product = order.paper  # dummy product
                 movement.semi_ref = order.ref_no
                 movement.save()
 
-                # PrintingRef toplam yarı mamul kg güncelle
-                total_semi = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
+                # PrintingRef toplam yarı mamul KG güncelle
+                total_semi = order.movements.filter(
+                    movement_type='semi_in',
+                    semi_ref=order.ref_no
+                ).aggregate(total=Sum('weight_kg'))['total'] or 0
                 order.ref_no.total_semi_kg = total_semi
                 order.ref_no.save()
 
@@ -132,7 +140,6 @@ def add_movement(request, pk, movement_type):
         'title': title,
         'order': order,
     })
-
 
 # ---------------------------
 # BASKI REF
