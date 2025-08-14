@@ -4,6 +4,7 @@ from django.db.models import Sum
 from .models import PrintingOrder, PrintingRef, PrintingOrderMovement
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
 from datetime import datetime, timedelta, date
+from inventory.models import Product, StockMovement
 
 # ---------------------------
 # LISTELEME & FİLTRELEME
@@ -94,20 +95,31 @@ def add_movement(request, pk, movement_type):
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                movement.product = order.paper  # Mamul: kağıt otomatik
-            elif movement_type == 'semi_in':
-                movement.product = order.paper  # Yarı mamul için dummy product
-                movement.semi_ref = order.ref_no  # Yarı mamul PrintingRef ile ilişkilendir
+                # Mamul ekleme → Product stoktan düşecek
+                movement.product = order.paper
                 movement.save()
 
-                # PrintingRef toplam yarı mamul KG güncelle
+                # StockMovement kaydı oluştur
+                StockMovement.objects.create(
+                    product=movement.product,
+                    movement_type='OUT',
+                    quantity=movement.weight_kg,
+                    description=f"Mamul üretimi: {order.order_no}"
+                )
+
+            elif movement_type == 'semi_in':
+                # Yarı mamul → PrintingRef ile ilişkilendir, Product dummy
+                movement.product = order.paper
+                movement.semi_ref = order.ref_no
+                movement.save()
+
+                # PrintingRef toplam yarı mamul kg güncelle
                 total_semi = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
                 order.ref_no.total_semi_kg = total_semi
                 order.ref_no.save()
-                return redirect('printing:printing_order_detail', pk=order.pk)
 
-            movement.save()
             return redirect('printing:printing_order_detail', pk=order.pk)
+
     else:
         form = PrintingOrderMovementForm(movement_type=movement_type, order=order)
         if movement_type == 'final_in':

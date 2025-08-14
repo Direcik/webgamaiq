@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from inventory.models import Product
 import uuid
+from inventory.models import StockMovement
 
 class PrintingRef(models.Model):
     ref_no = models.CharField(max_length=50, unique=True, verbose_name="Baskı Ref No")
@@ -52,12 +53,33 @@ class PrintingOrderMovement(models.Model):
     date = models.DateField(default=timezone.now)
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None  # İlk kayıt mı kontrolü
         super().save(*args, **kwargs)
-        # Yarı mamul ekleme durumunda PrintingRef.total_semi_kg güncelle
+
         if self.movement_type == 'semi_in' and self.semi_ref:
-            total_semi = self.order.movements.filter(movement_type='semi_in', semi_ref=self.semi_ref).aggregate(models.Sum('weight_kg'))['weight_kg__sum'] or 0
+            # Yarı mamul stok güncelleme
+            total_semi = self.order.movements.filter(
+                movement_type='semi_in',
+                semi_ref=self.semi_ref
+            ).aggregate(models.Sum('weight_kg'))['weight_kg__sum'] or 0
             self.semi_ref.total_semi_kg = total_semi
             self.semi_ref.save()
+
+        elif self.movement_type == 'final_in' and is_new and self.product:
+            # Mamül stoktan düş
+            self.product.stock_quantity -= float(self.weight_kg)
+            self.product.save()
+
+            # Stok hareketi kaydı
+            StockMovement.objects.create(
+                product=self.product,
+                movement_type='OUT',
+                quantity=float(self.weight_kg),
+                lot_no=None,
+                company=getattr(self.order, 'company', None),
+                user=getattr(self.order, 'created_by', None),
+                description=f"Baskı siparişi #{self.order.id} için mamul çıkışı"
+            )
 
     def __str__(self):
         if self.movement_type == 'final_in':
