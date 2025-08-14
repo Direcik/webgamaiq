@@ -4,13 +4,13 @@
 
 <div class="row g-2 mb-3">
     <div class="col-6 col-md-4 d-grid">
-        <a href="{% url 'printing:printing_order_create' %}" class="btn btn-success">
+        <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success">
             📝 Yeni Sipariş
         </a>
     </div>
 
     <div class="col-6 col-md-4 d-grid ms-auto">
-        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-danger">
+        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-danger">
             📄 Baskı Ref No Listesi
         </a>
     </div>
@@ -28,11 +28,11 @@
             <div class="col-6 col-md-3">
                 <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
             </div>
-            <div class="col-6 col-md-2 d-grid">
+            <div class="col-6 col-md-3 d-grid">
                 <button type="submit" class="btn btn-primary">Filtrele</button>
             </div>
-            <div class="col-6 col-md-2 d-grid">
-                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary">Temizle</a>
+            <div class="col-6 col-md-3 d-grid">
+                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-outline-secondary">Temizle</a>
             </div>
         </form>
     </div>
