@@ -99,7 +99,7 @@ def add_movement(request, pk, movement_type):
                 movement.save()
 
                 # Mamül stoktan düş
-                movement.product.stock_quantity = Decimal(movement.product.stock_quantity) - Decimal(movement.weight_kg)
+                movement.product.stock_quantity = float(movement.product.stock_quantity) - float(movement.weight_kg)
                 movement.product.save()
 
                 StockMovement.objects.create(
@@ -107,7 +107,7 @@ def add_movement(request, pk, movement_type):
                     movement_type='OUT',
                     quantity=float(movement.weight_kg),
                     description=f"Mamul üretimi: {order.order_no}"
-                )
+)
 
             elif movement_type == 'semi_in':
                 movement.product = order.paper  # dummy Product
