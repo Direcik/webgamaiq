@@ -5,8 +5,7 @@
 
 <div class="card mt-3">
     <div class="card-header">
-        <h3>Baskı Sipariş Numarası: {{ order.order_no }}</h3>
-        <img src="{{ qr_code }}" alt="QR Kod" class="img-fluid" style="max-width:75px;">
+        <h3>Baskı Sipariş Numarası: {{ order.order_no }} <img src="{{ qr_code }}" alt="QR Kod" class="img-fluid" style="max-width:75px;"></h3>
     </div>
     <div class="card-body">
         <div class="row g-2 mb-3">
@@ -71,16 +70,13 @@
         {% if order.status == "Üretimde" %}
         <form method="post" action="{% url 'printing:printing_order_complete' order.pk %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-success mt-3">Siparişi Tamamla</button>
+            <button type="submit" class="btn btn-outline-success mt-3"  class="btn btn-outline-dark mb-3 d-block w-100 py-2">Siparişi Tamamla</button>
         </form>
         {% endif %}
-        
-        <h3>QR Kod:</h3>
-        
+        <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2">
+            📄 PDF Oluştur
+        </a>
     </div>
-    <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2">
-        📄 PDF Oluştur
-    </a>
 </div>
 
 {% endblock body %}
