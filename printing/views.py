@@ -95,10 +95,13 @@ def add_movement(request, pk, movement_type):
             movement.movement_type = movement_type
 
             if movement_type == 'final_in':
-                movement.product = order.paper  # Mamul: kağıt otomatik
+                movement.product = order.paper
                 movement.save()
 
-                # Stok hareketi oluştur
+                # Mamül stoktan düş
+                movement.product.stock_quantity = Decimal(movement.product.stock_quantity) - Decimal(movement.weight_kg)
+                movement.product.save()
+
                 StockMovement.objects.create(
                     product=movement.product,
                     movement_type='OUT',
@@ -106,21 +109,10 @@ def add_movement(request, pk, movement_type):
                     description=f"Mamul üretimi: {order.order_no}"
                 )
 
-                # Ana stok miktarını StockMovement kayıtlarından güncelle
-                in_total = movement.product.stock_movements.filter(movement_type='IN').aggregate(total=Sum('quantity'))['total'] or 0
-                out_total = movement.product.stock_movements.filter(movement_type='OUT').aggregate(total=Sum('quantity'))['total'] or 0
-                movement.product.stock_quantity = in_total - out_total
-                movement.product.save()
-
             elif movement_type == 'semi_in':
                 movement.product = order.paper  # dummy Product
                 movement.semi_ref = order.ref_no
                 movement.save()
-
-                # PrintingRef toplam yarı mamul KG güncelle
-                total_semi = order.movements.filter(movement_type='semi_in', semi_ref=order.ref_no).aggregate(total=Sum('weight_kg'))['total'] or 0
-                order.ref_no.total_semi_kg = total_semi
-                order.ref_no.save()
 
             return redirect('printing:printing_order_detail', pk=order.pk)
 
