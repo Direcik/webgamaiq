@@ -99,7 +99,8 @@ def add_movement(request, pk, movement_type):
                 movement.save()
 
                 # Mamül stoktan düşme
-                movement.product.stock_quantity -= movement.weight_kg  # Decimal - Decimal
+                movement_quantity = float(movement.weight_kg)
+                movement.product.stock_quantity -= movement_quantity
                 movement.product.save()
 
                 StockMovement.objects.create(
