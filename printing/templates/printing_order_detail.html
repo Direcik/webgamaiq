@@ -3,7 +3,6 @@
 
 {% block body %}
 
-
 <div class="card mt-3">
     <div class="card-header">
         <h3>Baskı Sipariş Numarası: {{ order.order_no }}</h3>
@@ -22,68 +21,56 @@
                 </a>
             </div>
         </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Tip</th>
+                        <th>Ürün</th>
+                        <th>KG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in movements %}
+                    <tr class="{% if mov.movement_type == 'final_in' %}bg-success text-white{% else %}bg-primary text-white{% endif %}">
+                        <td>{{ mov.date }}</td>
+                        <td>{{ mov.get_movement_type_display }}</td>
+                        <td>
+                            {% if mov.movement_type == 'final_in' %}
+                                {{ mov.order.paper }}
+                            {% else %}
+                                {{ mov.order.ref_no.ref_no }}
+                            {% endif %}
+                        </td>
+                        <td>{{ mov.weight_kg }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">Henüz hareket yok.</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Toplam satırı -->
+                    <tr>
+                        <td colspan="3"><strong>Toplam Mamül KG</strong></td>
+                        <td>{{ total_final }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><strong>Toplam Yarı Mamül KG</strong></td>
+                        <td>{{ total_semi }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {% if order.status == "Üretimde" %}
+        <form method="post" action="{% url 'printing:printing_order_complete' order.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success mt-3">Siparişi Tamamla</button>
+        </form>
+        {% endif %}
     </div>
 </div>
-
-<div class="card mt-3">
-    <div class="card-header">
-        <h3>Hareketler</h3>
-    </div>
-    <div class="card-body table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>Tarih</th>
-                    <th>Tip</th>
-                    <th>Ürün</th>
-                    <th>KG</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for mov in movements %}
-                <tr style="
-                    {% if mov.movement_type == 'final_in' %}
-                        background-color: #28a745; color: white;
-                    {% else %}
-                        background-color: #007bff; color: white;
-                    {% endif %}
-                ">
-                    <td>{{ mov.date }}</td>
-                    <td>{{ mov.get_movement_type_display }}</td>
-                    <td>
-                        {% if mov.movement_type == 'final_in' %}
-                            {{ mov.order.paper }}
-                        {% else %}
-                            {{ mov.order.ref_no.ref_no }}
-                        {% endif %}
-                    </td>
-                    <td>{{ mov.weight_kg }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center">Henüz hareket yok.</td>
-                </tr>
-                {% endfor %}
-
-                <!-- Toplam satırları -->
-                <tr style="background-color: #155724; color: white;">
-                    <td colspan="3"><strong>Toplam Mamül KG</strong></td>
-                    <td>{{ total_final }}</td>
-                </tr>
-                <tr style="background-color: #004085; color: white;">
-                    <td colspan="3"><strong>Toplam Yarı Mamül KG</strong></td>
-                    <td>{{ total_semi }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-{% if order.status == "Üretimde" %}
-<form method="post" action="{% url 'printing:printing_order_complete' order.pk %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-outline-success mt-3">Siparişi Tamamla</button>
-</form>
-{% endif %}
 
 {% endblock body %}
