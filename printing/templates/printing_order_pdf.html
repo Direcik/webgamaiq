@@ -4,17 +4,25 @@
     <meta charset="UTF-8">
     <title>Sipariş Formu - {{ order.order_no }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 5px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .qr { float: right; margin-top: -80px; }
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 30px; }
+        .header { text-align: center; margin-bottom: 30px; position: relative; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; }
+        th, td { border: 1px solid #333; padding: 8px 10px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        td { background-color: #f9f9f9; }
+        .qr {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h2>Baskı Sipariş Formu</h2>
+        <div class="qr">
+            <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod" width="50">
+        </div>
     </div>
 
     <table>
@@ -27,8 +35,5 @@
         <tr><th>Açıklama</th><td>{{ order.description }}</td></tr>
         <tr><th>Kağıt REF / Adı</th><td>{{ order.paper.ref_no }} / {{ order.paper.name_tr }}</td></tr>
     </table>
-    <div class="qr">
-        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod" width="25">
-    </div>
 </body>
 </html>
