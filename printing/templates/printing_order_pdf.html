@@ -5,12 +5,11 @@
     <title>Sipariş Formu - {{ order.order_no }}</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; margin: 30px; position: relative; }
-        .header { text-align: center; margin-bottom: 30px; position: relative; }
+        .header { text-align: center; margin-bottom: 20px; position: relative; }
         .qr {
             position: absolute;
             top: 0;
-            right: 0;
-            z-index: 10;
+            right: 30px; /* sayfa sağ kenar boşluğu kadar */
         }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; }
         th, td { border: 1px solid #333; padding: 8px 10px; text-align: left; }
@@ -21,10 +20,10 @@
 </head>
 <body>
     <div class="header">
-        <h2>Baskı Sipariş Formu</h2>
         <div class="qr">
-            <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod" width="50">
+            <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod" width="40">
         </div>
+        <h2>Baskı Sipariş Formu</h2>
     </div>
 
     <table>
