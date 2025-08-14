@@ -5,11 +5,11 @@
 
 <h2>Baskı Sipariş Numarası: {{ order.order_no }}</h2>
 
-<div class="mb-3 d-flex gap-2">
-    <a href="{% url 'printing:add_movement' order.pk 'final_in' %}" class="btn btn-success">
+<div class="mb-3 d-flex justify-content-between">
+    <a href="{% url 'printing:add_movement' order.pk 'final_in' %}" class="btn btn-outline-success">
         🌀 Mamul Ekle
     </a>
-    <a href="{% url 'printing:add_movement' order.pk 'semi_in' %}" class="btn btn-warning">
+    <a href="{% url 'printing:add_movement' order.pk 'semi_in' %}" class="btn btn-outline-primary">
         📝 Yarı Mamul Ekle
     </a>
 </div>
@@ -30,7 +30,7 @@
             </thead>
             <tbody>
                 {% for mov in movements %}
-                <tr>
+                <tr {% if mov.movement_type == 'final_in' %}class="table-success"{% else %}class="table-primary"{% endif %}>
                     <td>{{ mov.date }}</td>
                     <td>{{ mov.get_movement_type_display }}</td>
                     <td>
@@ -60,5 +60,12 @@
         </table>
     </div>
 </div>
+
+{% if order.status == "Üretimde" %}
+<form method="post" action="{% url 'printing:printing_order_complete' order.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success mt-3">Siparişi Tamamla</button>
+</form>
+{% endif %}
 
 {% endblock body %}

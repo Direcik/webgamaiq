@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Sum
 from .models import PrintingOrder, PrintingRef, PrintingOrderMovement
@@ -128,6 +129,16 @@ def add_movement(request, pk, movement_type):
         'title': title,
         'order': order,
     })
+
+
+
+@require_POST
+def printing_order_complete(request, pk):
+    order = get_object_or_404(PrintingOrder, pk=pk)
+    # Sipariş durumu alanını modelde saklıyorsak güncelle
+    order.is_completed = True  # Örnek: BooleanField ile
+    order.save()
+    return redirect('printing:printing_order_detail', pk=pk)
 
 # ---------------------------
 # BASKI REF

@@ -2,37 +2,47 @@
 {% block body %}
 {% load crispy_forms_tags %}
 
-<div class="row mb-3">
-    <div class="col-md-4">
-        <a href="{% url 'printing:printing_order_create' %}" class="btn btn-outline-success">
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-4 d-grid">
+        <a href="{% url 'printing:printing_order_create' %}" class="btn btn-success">
             📝 Yeni Sipariş
         </a>
     </div>
 
-    <div class="col-md-4 text-end">
-        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-outline-danger">
+    <div class="col-6 col-md-4 d-grid ms-auto">
+        <a href="{% url 'printing:printing_ref_list' %}" class="btn btn-danger">
             📄 Baskı Ref No Listesi
         </a>
     </div>
 </div>
+
 <div class="card mb-4">
     <div class="card-header">
         <h3>Tarih Filtresi</h3>
     </div>
     <div class="card-body">
-        <form method="get" class="d-flex">
-            <input type="date" name="start_date" value="{{ start_date }}" class="form-control me-2">
-            <input type="date" name="end_date" value="{{ end_date }}" class="form-control me-2">
-            <button type="submit" class="btn btn-primary me-2">Filtrele</button>
-            <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary">Temizle</a>
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-6 col-md-3">
+                <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+            </div>
+            <div class="col-6 col-md-3">
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+            </div>
+            <div class="col-6 col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">Filtrele</button>
+            </div>
+            <div class="col-6 col-md-2 d-grid">
+                <a href="{% url 'printing:printing_order_list' %}" class="btn btn-secondary">Temizle</a>
+            </div>
         </form>
     </div>
 </div>
+
 <div class="card mb-4">
     <div class="card-header">
         <h3>Baskı Siparişleri</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body table-responsive">
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
@@ -75,4 +85,5 @@
         </table>
     </div>
 </div>
+
 {% endblock body %}

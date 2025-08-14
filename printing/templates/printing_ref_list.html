@@ -1,40 +1,52 @@
-
 {% extends "layout.html" %}
 {% block body %}
 {% load crispy_forms_tags %}
 
-<a href="{% url 'printing:printing_ref_add' %}" class="btn btn-primary mb-3">Yeni Ref Ekle</a>
+<a href="{% url 'printing:printing_ref_add' %}" class="btn btn-outline-primary mb-3 d-block w-100 py-2">
+    🆕 Yeni Ref Ekle
+</a>
+
 <div class="card mb-4">
     <div class="card-header">
         <h3>Baskı Ref Numaraları</h3>
     </div>
-    <div class="card-body">
+    <div class="card-body table-responsive">
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Ref No</th>
+                    <th>Miktar</th>
                     <th>Kazan Ölçüsü</th>
-                    <th>İşlemler</th>
+                    <th>Düzenle</th>
+                    <th>Sil</th>
                 </tr>
             </thead>
             <tbody>
                 {% for ref in refs %}
                 <tr>
                     <td>{{ ref.ref_no }}</td>
+                    <td>{{ ref.total_semi_kg }}</td>
                     <td>{{ ref.kazan_size }}</td>
                     <td>
-                        <a href="{% url 'printing:printing_ref_edit' ref.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
+                        <a href="{% url 'printing:printing_ref_edit' ref.pk %}" class="btn btn-warning btn-sm">
+                            Düzenle
+                        </a>
+                    </td>
+                    <td>
                         <a href="{% url 'printing:printing_ref_delete' ref.pk %}" class="btn btn-danger btn-sm"
-                           onclick="return confirm('Silmek istediğine emin misin?')">Sil</a>
+                           onclick="return confirm('Silmek istediğine emin misin?')">
+                            Sil
+                        </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3">Henüz kayıt yok.</td>
+                    <td colspan="5">Henüz kayıt yok.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
 {% endblock body %}
