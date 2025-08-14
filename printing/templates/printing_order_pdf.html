@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <title>BASKI SİPARİŞ FORMU</title>
     <style>
         @page {
             size: A4;
@@ -30,11 +30,12 @@
             width: 90px;
             height: 90px;
         }
-        h2 {
+        h1 {
             margin: 0;
             padding: 0;
             text-align: left;
-            font-size: 16px;
+            font-size: 20px;
+            text-transform: uppercase;
         }
         table {
             width: 100%;
@@ -59,9 +60,7 @@
     <!-- Üst Başlık ve QR Kod -->
     <div class="header">
         <div class="header-left">
-            <h2>{{ title }}</h2>
-            <p>Sipariş No: {{ order.order_no }}</p>
-            <p>Tarih: {{ order.date }}</p>
+            <h1>BASKI SİPARİŞ FORMU</h1>
         </div>
         <div class="qr">
             <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod">
@@ -70,14 +69,18 @@
 
     <!-- Sipariş Detay Tablosu -->
     <table>
+        <tr><th>Sipariş No</th><td>{{ order.order_no }}</td></tr>
+        <tr><th>Tarih</th><td>{{ order.date }}</td></tr>
         <tr><th>Ref No</th><td>{{ order.ref_no.ref_no }}</td></tr>
         <tr><th>Kazan Ölçüsü</th><td>{{ order.ref_no.kazan_size }}</td></tr>
         <tr><th>Toplam KG</th><td>{{ order.weight }}</td></tr>
-        <tr><th>Baskı Yüzeyi</th><td>
-            {% if order.surface == 'ic' %}İç
-            {% elif order.surface == 'dis' %}Dış
-            {% else %}{{ order.surface }}{% endif %}
-        </td></tr>
+        <tr><th>Baskı Yüzeyi</th>
+            <td>
+                {% if order.surface == 'ic' %}İç
+                {% elif order.surface == 'dis' %}Dış
+                {% else %}{{ order.surface }}{% endif %}
+            </td>
+        </tr>
         <tr><th>Açıklama</th><td>{{ order.description }}</td></tr>
         <tr><th>Kağıt REF / Adı</th><td>{{ order.paper.ref_no }} / {{ order.paper.name_tr }}</td></tr>
     </table>
