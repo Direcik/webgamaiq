@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sipariş Hareketleri - {{ order.order_no }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 15px;
+        }
+        h2, h3 {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 5px;
+            text-align: left;
+            font-weight: bold;
+        }
+        th {
+            background-color: #e0e0e0;
+        }
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+        .header {
+            position: relative;
+        }
+        .qr {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .qr img {
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Baskı Sipariş Hareketleri</h2>
+        <div class="qr">
+            <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod">
+        </div>
+    </div>
+
+    <h3>Sipariş Bilgileri</h3>
+    <table>
+        <tr><th>Ref No</th><td>{{ order.ref_no.ref_no }}</td></tr>
+        <tr><th>Sipariş No</th><td>{{ order.order_no }}</td></tr>
+        <tr><th>Tarih</th><td>{{ order.date }}</td></tr>
+        <tr><th>Toplam KG</th><td>{{ order.weight }}</td></tr>
+        <tr><th>Baskı Yüzeyi</th><td>{{ order.surface }}</td></tr>
+    </table>
+
+    <h3>Hareketler</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Tip</th>
+                <th>Ürün</th>
+                <th>KG</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mov in movements %}
+            <tr>
+                <td>{{ mov.date }}</td>
+                <td>{{ mov.get_movement_type_display }}</td>
+                <td>
+                    {% if mov.movement_type == 'final_in' %}
+                        {{ mov.order.paper }}
+                    {% else %}
+                        {{ mov.order.ref_no.ref_no }}
+                    {% endif %}
+                </td>
+                <td>{{ mov.weight_kg }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3"><strong>Toplam Mamül KG</strong></td>
+                <td>{{ total_final }}</td>
+            </tr>
+            <tr>
+                <td colspan="3"><strong>Toplam Yarı Mamül KG</strong></td>
+                <td>{{ total_semi }}</td>
+            </tr>
+            <tr>
+                <td colspan="3"><strong>Fire KG</strong></td>
+                <td>{{ total_final }} - {{ total_semi }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

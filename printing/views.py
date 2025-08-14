@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.db.models import Sum
+from django.template.loader import render_to_string
 from .models import PrintingOrder, PrintingRef, PrintingOrderMovement
 from .forms import PrintingOrderForm, PrintingOrderMovementForm, PrintingRefForm
 from datetime import datetime, timedelta, date
@@ -213,4 +214,37 @@ def printing_order_pdf(request, pk):
 
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'filename="siparis_{order.order_no}.pdf"'
+    return response
+
+
+
+def printing_order_movements_pdf(request, pk):
+    order = get_object_or_404(PrintingOrder, pk=pk)
+    movements = order.movements.all()
+
+    # QR kod
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=3,
+        border=2,
+    )
+    qr.add_data(request.build_absolute_uri())
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+    html_string = render_to_string("printing_order_movements_pdf.html", {
+        "order": order,
+        "movements": movements,
+        "total_final": sum(m.weight_kg for m in movements if m.movement_type == "final_in"),
+        "total_semi": sum(m.weight_kg for m in movements if m.movement_type != "final_in"),
+        "qr_code_base64": qr_code_base64,
+    })
+
+    pdf_file = HTML(string=html_string).write_pdf()
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response['Content-Disposition'] = f'filename="siparis_{order.order_no}_hareketler.pdf"'
     return response

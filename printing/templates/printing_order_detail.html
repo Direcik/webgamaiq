@@ -73,9 +73,21 @@
             <button type="submit" class="btn btn-outline-success mt-3"  class="btn btn-outline-dark mb-3 d-block w-100 py-2">Siparişi Tamamla</button>
         </form>
         {% endif %}
-        <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2" target="_blank">
-            📄 PDF Oluştur
-        </a>
+
+        <div class="row g-2 mb-3">
+            <div class="col-6 col-md-4 d-grid">
+                <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2" target="_blank">
+                    📄 Sipariş Formu
+                </a>
+            </div>
+
+            <div class="col-6 col-md-4 d-grid ms-auto">
+                <a href="{% url 'printing:printing_order_movements_pdf' order.pk %}" class="btn btn-outline-danger mb-3 d-block w-100 py-2" target="_blank">
+                    📄 Sipariş Raporu
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 
