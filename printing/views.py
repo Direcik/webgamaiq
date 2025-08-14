@@ -132,13 +132,19 @@ def add_movement(request, pk, movement_type):
 
 
 
-@require_POST
 def printing_order_complete(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
-    # Sipariş durumu alanını modelde saklıyorsak güncelle
-    order.is_completed = True  # Örnek: BooleanField ile
+
+    if order.status != "Üretimde":
+        messages.warning(request, "Sipariş zaten tamamlanmış veya henüz başlatılmamış.")
+        return redirect('printing:printing_order_detail', pk=order.pk)
+
+    # Siparişi manuel tamamla
+    order.status_override = "Tamamlandı"
     order.save()
-    return redirect('printing:printing_order_detail', pk=pk)
+
+    messages.success(request, f"Sipariş {order.order_no} başarıyla tamamlandı.")
+    return redirect('printing:printing_order_detail', pk=order.pk)
 
 # ---------------------------
 # BASKI REF

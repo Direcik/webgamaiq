@@ -20,6 +20,9 @@ class PrintingOrder(models.Model):
     surface = models.CharField(max_length=10, choices=[('ic', 'İç'), ('dis', 'Dış')], verbose_name="Baskı Yüzeyi")
     date = models.DateField(default=timezone.now, verbose_name="Tarih")
     description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    
+    # Manual tamamlandı durumu için alan
+    status_override = models.CharField(max_length=20, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.order_no:
@@ -28,6 +31,10 @@ class PrintingOrder(models.Model):
 
     @property
     def status(self):
+        # Eğer manuel tamamlandı işaretlenmişse onu döndür
+        if self.status_override:
+            return self.status_override
+
         semi_total = self.movements.filter(movement_type='semi_in').aggregate(total=models.Sum('weight_kg'))['total'] or 0
         if not self.movements.exists():
             return "Oluşturuldu"
