@@ -57,6 +57,8 @@ def printing_order_create(request):
 # ---------------------------
 def printing_order_detail(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
+    order_url = request.build_absolute_uri(order.get_absolute_url())
+    qr_code_base64 = order.generate_qr_code_base64(order_url)
     movements = order.movements.all().order_by('-date')
 
     # Toplam KG hesaplama
@@ -68,6 +70,7 @@ def printing_order_detail(request, pk):
         'movements': movements,
         'total_final': total_final,
         'total_semi': total_semi,
+        'qr_code': qr_code_base64
     })
 
 # ---------------------------

@@ -49,7 +49,7 @@ class PrintingOrderMovementForm(forms.ModelForm):
 class PrintingRefForm(forms.ModelForm):
     class Meta:
         model = PrintingRef
-        fields = ['ref_no', 'kazan_size']
+        fields = ['ref_no', 'kazan_size', 'total_semi_kg']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

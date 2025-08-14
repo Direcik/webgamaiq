@@ -1,8 +1,13 @@
 from django.db import models
 from django.utils import timezone
 from inventory.models import Product
-import uuid
 from django.db.models import Sum
+from django.urls import reverse
+from io import BytesIO
+import base64
+import qrcode
+import uuid
+
 
 class PrintingRef(models.Model):
     ref_no = models.CharField(max_length=50, unique=True, verbose_name="Baskı Ref No")
@@ -13,15 +18,20 @@ class PrintingRef(models.Model):
         return self.ref_no
 
 class PrintingOrder(models.Model):
-    ref_no = models.ForeignKey(PrintingRef, on_delete=models.PROTECT, verbose_name="Baskı Ref No")
+    ref_no = models.ForeignKey('PrintingRef', on_delete=models.PROTECT, verbose_name="Baskı Ref No")
     order_no = models.CharField(max_length=20, unique=True, editable=False)
-    paper = models.ForeignKey(Product, on_delete=models.CASCADE, limit_choices_to={'category__name__iexact': 'KAĞIT'}, verbose_name="Kullanılacak Kağıt")
+    paper = models.ForeignKey(
+        Product, 
+        on_delete=models.CASCADE, 
+        limit_choices_to={'category__name__iexact': 'KAĞIT'}, 
+        verbose_name="Kullanılacak Kağıt"
+    )
     weight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Toplam KG")
     surface = models.CharField(max_length=10, choices=[('ic', 'İç'), ('dis', 'Dış')], verbose_name="Baskı Yüzeyi")
     date = models.DateField(default=timezone.now, verbose_name="Tarih")
     description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
     
-    # Manual tamamlandı durumu için alan
+    # Manuel tamamlandı durumu için alan
     status_override = models.CharField(max_length=20, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -42,6 +52,25 @@ class PrintingOrder(models.Model):
             return "Tamamlandı"
         else:
             return "Üretimde"
+
+    def get_absolute_url(self):
+        return reverse('printing:printing_order_detail', args=[self.pk])
+
+    def generate_qr_code_base64(self, url):
+        """Verilen URL için QR kod oluşturur ve base64 string olarak döndürür"""
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        return f"data:image/png;base64,{img_str}"
 
     def __str__(self):
         return f"{self.ref_no.ref_no} ({self.order_no})"
