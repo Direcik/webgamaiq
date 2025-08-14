@@ -13,6 +13,7 @@ from decimal import Decimal
 def printing_order_list(request):
     orders = PrintingOrder.objects.all().order_by('-date')
 
+    # Tarih filtresi
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
     today = date.today()
@@ -30,25 +31,12 @@ def printing_order_list(request):
 
     orders = orders.filter(date__range=[start_date, end_date])
 
-    # Sipariş durumu
-    orders_with_status = []
-    for order in orders:
-        semi_in_total = order.movements.filter(movement_type='semi_in').aggregate(total=Sum('weight_kg'))['total'] or 0
-        if order.movements.count() == 0:
-            status = "Sipariş Oluşturuldu"
-        elif semi_in_total >= order.weight:
-            status = "Tamamlandı"
-        else:
-            status = "Üretimde"
-        orders_with_status.append((order, status))
-
     context = {
-        'orders_with_status': orders_with_status,
+        'orders': orders,
         'start_date': start_date.strftime('%Y-%m-%d'),
         'end_date': end_date.strftime('%Y-%m-%d'),
     }
     return render(request, 'printing_order_list.html', context)
-
 
 # ---------------------------
 # SİPARİŞ OLUŞTUR
