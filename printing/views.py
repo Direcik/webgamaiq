@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 import qrcode
 from io import BytesIO
+import base64
 
 
 # ---------------------------
@@ -187,10 +188,8 @@ def printing_ref_delete(request, pk):
 def printing_order_pdf(request, pk):
     order = get_object_or_404(PrintingOrder, pk=pk)
     
-    # Sipariş linki
     order_url = request.build_absolute_uri(reverse('printing:printing_order_detail', args=[order.pk]))
     
-    # QR kod oluştur
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -202,17 +201,16 @@ def printing_order_pdf(request, pk):
     img = qr.make_image(fill_color="black", back_color="white")
     buffered = BytesIO()
     img.save(buffered, format="PNG")
-    qr_code_base64 = buffered.getvalue()
-    
+    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode()  # <-- base64 string
+
     context = {
         'order': order,
-        'qr_code': qr_code_base64,  # base64 yerine direkt bytes kullanacağız WeasyPrint ile
+        'qr_code_base64': qr_code_base64,  # template bunu direkt kullanacak
     }
-    
+
     html_string = render(request, 'printing_order_pdf.html', context).content.decode('utf-8')
-    html = HTML(string=html_string)
-    pdf_file = html.write_pdf()
-    
+    pdf_file = HTML(string=html_string).write_pdf()
+
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'filename="siparis_{order.order_no}.pdf"'
     return response
