@@ -17,10 +17,6 @@
         <h2>Baskı Sipariş Formu</h2>
     </div>
 
-    <div class="qr">
-        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod" width="100">
-    </div>
-
     <table>
         <tr><th>Ref No</th><td>{{ order.ref_no.ref_no }}</td></tr>
         <tr><th>Kazan Ölçüsü</th><td>{{ order.ref_no.kazan_size }}</td></tr>
@@ -31,5 +27,8 @@
         <tr><th>Açıklama</th><td>{{ order.description }}</td></tr>
         <tr><th>Kağıt REF / Adı</th><td>{{ order.paper.ref_no }} / {{ order.paper.name_tr }}</td></tr>
     </table>
+    <div class="qr">
+        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Kod" width="25">
+    </div>
 </body>
 </html>

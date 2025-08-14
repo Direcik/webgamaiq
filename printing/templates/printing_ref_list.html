@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
+{% block title %}Baskı Listesi{% endblock %}
 {% load crispy_forms_tags %}
 
 <a href="{% url 'printing:printing_ref_add' %}" class="btn btn-outline-primary mb-3 d-block w-100 py-2">

@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
 {% load crispy_forms_tags %}
-{% block title %}<title>Sipariş Detayı</title>{% endblock %}
+{% block title %}Sipariş Detayı{% endblock %}
 {% block body %}
 
 <div class="card mt-3">
     <div class="card-header">
         <h3>Baskı Sipariş Numarası: {{ order.order_no }}</h3>
+        <img src="{{ qr_code }}" alt="QR Kod" class="img-fluid" style="max-width:75px;">
     </div>
     <div class="card-body">
         <div class="row g-2 mb-3">
@@ -75,7 +76,7 @@
         {% endif %}
         
         <h3>QR Kod:</h3>
-        <img src="{{ qr_code }}" alt="QR Kod" class="img-fluid" style="max-width:150px;">
+        
     </div>
     <a href="{% url 'printing:printing_order_pdf' order.pk %}" class="btn btn-outline-dark mb-3 d-block w-100 py-2">
         📄 PDF Oluştur
