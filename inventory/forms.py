@@ -278,9 +278,9 @@ class StockMovementFilterForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Column('movement_type', css_class='col-md-2 mb-2'),
-                Column('category', css_class='col-md-3 mb-2'),
-                Column('start_date', css_class='col-md-3 mb-2'),
-                Column('end_date', css_class='col-md-3 mb-2'),
+                Column('category', css_class='col-md-2 mb-2'),
+                Column('start_date', css_class='col-md-2 mb-2'),
+                Column('end_date', css_class='col-md-2 mb-2'),
                 Column(Submit('submit', 'Filtrele', css_class='btn btn-primary w-100'), css_class='col-md-2 mb-2'),
                 Column(
                     HTML('<a href="." class="btn btn-outline-secondary w-100">Temizle</a>'),
