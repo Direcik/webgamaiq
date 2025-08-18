@@ -179,14 +179,12 @@ def stock_movement_list(request):
     """
     stock_movements = StockMovement.objects.none()  # Şu an listeyi boş başlatıyoruz
     filter_form = StockMovementFilterForm(request.GET or None)
-    category_form = CategoryFilterForm(request.GET or None)
     filtered = False
 
     if filter_form.is_valid():
         start_date = filter_form.cleaned_data.get('start_date')
         end_date = filter_form.cleaned_data.get('end_date')
         movement_type = filter_form.cleaned_data.get('movement_type')
-        category = category_form.cleaned_data.get('category')
 
         # En az bir filtre alanı doluysa filtreleme yap
         if start_date or end_date or movement_type:
@@ -201,9 +199,6 @@ def stock_movement_list(request):
 
             if movement_type:
                 stock_movements = stock_movements.filter(movement_type=movement_type)
-                
-            if category:
-                stock_movements = stock_movements.filter(product__category=category)  # ✅ ürün kategorisine göre filtrele
 
             stock_movements = stock_movements.order_by('-movement_date')
             filtered = True
@@ -211,7 +206,6 @@ def stock_movement_list(request):
     context = {
         'stock_movements': stock_movements,
         'filter_form': filter_form,
-        'category_form': category_form,
         'title': 'Stok Hareketleri Listesi',
         'filtered': filtered,  # Eğer filtre uygulanmışsa True gönder
     }
