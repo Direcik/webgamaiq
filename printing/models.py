@@ -36,7 +36,7 @@ class PrintingOrder(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.order_no:
-            self.order_no = f"ORD-{uuid.uuid4().hex[:6].upper()}"
+            self.order_no = f"BSK-{uuid.uuid4().hex[:6].upper()}"
         super().save(*args, **kwargs)
 
     @property

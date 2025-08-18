@@ -138,45 +138,45 @@
       </tbody>
     </table>
     <table style="width: 100%; font-size: 8pt; margin-top: 20px; border-collapse: collapse;">
-        <tr>
-          <td style="width: 80%; text-align: right; padding: 2px 6px;"><strong>Toplam:</strong></td>
-          <td style="width: 20%; text-align: right; padding: 2px 36px;">
-            <strong>{{ invoice.get_total_amount }} {{ invoice.get_currency_display }}</strong>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: right; padding: 2px 6px;">
-            <strong>KDV (%{{ invoice.vat_rate }}):</strong>
-          </td>
-          <td style="text-align: right; padding: 2px 36px;">
-            <strong>{{ invoice.get_vat_amount }} {{ invoice.get_currency_display }}</strong>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: right; padding: 2px 6px;">
-            <strong>Genel Toplam:</strong>
-          </td>
-          <td style="text-align: right; padding: 2px 36px;">
-            <strong>{{ invoice.get_grand_total }} {{ invoice.get_currency_display }}</strong>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: right; padding: 2px 6px;">
-            <strong>Kur:</strong>
-          </td>
-          <td style="text-align: right; padding: 2px 36px;">
-            <strong>{{ invoice.exchange_rate }}</strong>
-          </td>
-        </tr>
-        <tr>
-          <td style="text-align: right; padding: 2px 6px;">
-            <strong>TL Karşılığı:</strong>
-          </td>
-          <td style="text-align: right; padding: 2px 36px;">
-            <strong>{{ invoice.get_tl_grand_total|floatformat:4  }} ₺</strong>
-          </td>
-        </tr>
-      </table>
+      <tr>
+        <td style="width: 80%; text-align: right; padding: 2px 6px;"><strong>Toplam:</strong></td>
+        <td style="width: 20%; text-align: right; padding: 2px 12px; white-space: nowrap;">
+          <strong>{{ invoice.get_total_amount }} {{ invoice.get_currency_display }}</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: right; padding: 2px 6px;">
+          <strong>KDV (%{{ invoice.vat_rate }}):</strong>
+        </td>
+        <td style="text-align: right; padding: 2px 12px; white-space: nowrap;">
+          <strong>{{ invoice.get_vat_amount }} {{ invoice.get_currency_display }}</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: right; padding: 2px 6px;">
+          <strong>Genel Toplam:</strong>
+        </td>
+        <td style="text-align: right; padding: 2px 12px; white-space: nowrap;">
+          <strong>{{ invoice.get_grand_total }} {{ invoice.get_currency_display }}</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: right; padding: 2px 6px;">
+          <strong>Kur:</strong>
+        </td>
+        <td style="text-align: right; padding: 2px 12px; white-space: nowrap;">
+          <strong>{{ invoice.exchange_rate }}</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: right; padding: 2px 6px;">
+          <strong>TL Karşılığı:</strong>
+        </td>
+        <td style="text-align: right; padding: 2px 12px; white-space: nowrap;">
+          <strong>{{ invoice.get_tl_grand_total|floatformat:4 }} ₺</strong>
+        </td>
+      </tr>
+    </table>
 
 </main>
 
