@@ -185,6 +185,7 @@ def stock_movement_list(request):
         start_date = filter_form.cleaned_data.get('start_date')
         end_date = filter_form.cleaned_data.get('end_date')
         movement_type = filter_form.cleaned_data.get('movement_type')
+        category = filter_form.cleaned_data.get('category')
 
         # En az bir filtre alanı doluysa filtreleme yap
         if start_date or end_date or movement_type:
@@ -199,6 +200,9 @@ def stock_movement_list(request):
 
             if movement_type:
                 stock_movements = stock_movements.filter(movement_type=movement_type)
+
+            if category:
+                stock_movements = stock_movements.filter(product__category=category)
 
             stock_movements = stock_movements.order_by('-movement_date')
             filtered = True

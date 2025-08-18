@@ -250,12 +250,21 @@ class StockMovementFilterForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        required=False,
+        label="Kategori",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     start_date = forms.DateField(
         required=False,
+        label="Başlangıç",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
     end_date = forms.DateField(
         required=False,
+        label="Bitiş",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
 
@@ -269,6 +278,7 @@ class StockMovementFilterForm(forms.Form):
         self.helper.layout = Layout(
             Row(
                 Column('movement_type', css_class='col-md-2 mb-2'),
+                Column('category', css_class='col-md-3 mb-2'),
                 Column('start_date', css_class='col-md-3 mb-2'),
                 Column('end_date', css_class='col-md-3 mb-2'),
                 Column(Submit('submit', 'Filtrele', css_class='btn btn-primary w-100'), css_class='col-md-2 mb-2'),
