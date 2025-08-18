@@ -9,9 +9,14 @@
             <h5 class="mb-0">Hareket Filtrele</h5>
         </div>
         <div class="card-body">
-          <form method="get">
-            {% crispy filter_form %}
-          </form>
+            <form method="get" class="row">
+                <div class="col-md-9">
+                    {% crispy filter_form %}
+                </div>
+                <div class="col-md-3">
+                    {% crispy category_form %}
+                </div>
+            </form>
         </div>
       </div>
     {# Tarih Aralığı Filtreleme Formu #}
